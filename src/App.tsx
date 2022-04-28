@@ -3,10 +3,10 @@ import Board from "./components/Board/Board";
 import styled from "styled-components";
 
 const initialColumnsName: { id: string, title: string }[] = [
-    {id: "0", title: 'To do'},
-    {id: "1", title: 'In Progress'},
-    {id: "2", title: 'Testing'},
-    {id: "3", title: 'Done'},
+    {id: "column-0", title: 'To do'},
+    {id: "column-1", title: 'In Progress'},
+    {id: "column-2", title: 'Testing'},
+    {id: "column-3", title: 'Done'},
 ]
 
 const App: React.FC = () => {
@@ -21,7 +21,7 @@ const App: React.FC = () => {
     const createNewColumn = () => {
 
         if (value) {
-            onSetColumns([...columns, {id: `${columns.length}`, title: value}])
+            onSetColumns([...columns, {id: `column-${columns.length}`, title: value}])
             onSetValue('')
         }
         return
@@ -39,7 +39,7 @@ const App: React.FC = () => {
                 {columns.map((el: { id: string; title: string; }) => {
                     console.log(el)
                     return (
-                        <Board key={el.id} title={el.title}/>
+                        <Board id={el.id} key={el.id} title={el.title}/>
                     )
                 })}
             </Boards>

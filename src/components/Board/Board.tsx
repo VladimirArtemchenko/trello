@@ -1,24 +1,25 @@
 import React, {useState} from "react";
 import styled from "styled-components";
 
-interface BoardProps {
+interface ColumnProps {
     title: string
+    id:string
 };
 
-const Board:React.FC<BoardProps> = ({title}: BoardProps) => {
+const Board:React.FC<ColumnProps> = ({title,id}: ColumnProps) => {
 
-    const [value, setValue] = useState<string>('');
-    const [toDoList, setToDoList] = useState<string[]>([]);
+    const [value, onSetValue] = useState<string>('');
+    const [toDoList, onSetToDoList] = useState<{ id:string,title:string }[]>([]);
 
     const handleChange = ({target}: React.ChangeEvent<HTMLInputElement>) => {
-        setValue(target.value)
+        onSetValue(target.value)
     };
 
     const onSetNewTask = () => {
 
         if (value) {
-            setToDoList([value, ...toDoList])
-            setValue('')
+            onSetToDoList([{id: `${id}-ToDo-${toDoList.length}`,title:value}, ...toDoList])
+            onSetValue('')
         }
         return
     };
@@ -33,9 +34,10 @@ const Board:React.FC<BoardProps> = ({title}: BoardProps) => {
             </Form>
 
             <div>
-                {toDoList.map((el:string) => {
+                {toDoList.map((el:{id:string,title:string}) => {
+                    console.log(el)
                     return (
-                        <Task key={el}>{el}</Task>
+                        <Task id={el.id} key={el.id}>{el.title}</Task>
                     )
                 })}
             </div>
