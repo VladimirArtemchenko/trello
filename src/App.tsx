@@ -1,28 +1,28 @@
-import React, {useState, useId} from "react";
+import React, {useState} from "react";
 import Board from "./components/Board/Board";
 import styled from "styled-components";
 
 const initialColumnsName: { id: string, title: string }[] = [
-    {id: "1", title: 'To do'},
-    {id: "2", title: 'In Progress'},
-    {id: "3", title: 'Testing'},
-    {id: "4", title: 'Done'},
+    {id: "0", title: 'To do'},
+    {id: "1", title: 'In Progress'},
+    {id: "2", title: 'Testing'},
+    {id: "3", title: 'Done'},
 ]
 
 const App: React.FC = () => {
 
-    const [value, setValue] = useState<string>('');
-    const [boards, setBoards] = useState(initialColumnsName);
+    const [value, onSetValue] = useState<string>('');
+    const [columns, onSetColumns] = useState(initialColumnsName);
 
     const handleChange = ({target}: React.ChangeEvent<HTMLInputElement>) => {
-        setValue(target.value)
+        onSetValue(target.value)
     };
 
-    const onSetNewBoard = () => {
+    const createNewColumn = () => {
 
         if (value) {
-            setBoards([...boards, {id: value, title: value}])
-            setValue('')
+            onSetColumns([...columns, {id: `${columns.length}`, title: value}])
+            onSetValue('')
         }
         return
     };
@@ -33,11 +33,11 @@ const App: React.FC = () => {
 
             <NewBoard type="text" onChange={handleChange} value={value}/>
 
-            <NewBoardButton onClick={onSetNewBoard}>Add Board</NewBoardButton>
+            <NewBoardButton onClick={createNewColumn}>Add Board</NewBoardButton>
 
             <Boards>
-                {boards.map((el: { id: string; title: string; }) => {
-
+                {columns.map((el: { id: string; title: string; }) => {
+                    console.log(el)
                     return (
                         <Board key={el.id} title={el.title}/>
                     )
