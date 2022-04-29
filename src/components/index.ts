@@ -1,3 +1,3 @@
-export * from './Board/Board';
-export * from './Login/Login';
-export *  from './Modal/Modal';
+export * from './Board';
+export * from './Login';
+export *  from './Modal';
