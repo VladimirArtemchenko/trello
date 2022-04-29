@@ -1,7 +1,5 @@
 import React, {useState} from "react";
-import Board from "./components/Board/Board";
-import Modal from "./components/Modal/Modal";
-import Login from "./components/Login/Login";
+import {Board, Login, Modal} from './components';
 import styled from "styled-components";
 import {v4 as uuidv4} from "uuid";
 
@@ -14,19 +12,19 @@ const initialColumnsName = [
 
 const App: React.FC = () => {
 
-    const [userName, onSetUserName] = useState<string>('');
-    const [isLoginModalActive, onSetModalActive] = useState<boolean>(true);
-    const [value, onSetValue] = useState<string>('');
-    const [columns, onSetColumns] = useState(initialColumnsName);
+    const [userName, setUserName] = useState<string>('');
+    const [isLoginModalActive, setModalActive] = useState<boolean>(true);
+    const [value, setValue] = useState<string>('');
+    const [columns, setColumns] = useState(initialColumnsName);
 
     const handleChange = ({target}: React.ChangeEvent<HTMLInputElement>) => {
-        onSetValue(target.value)
+        setValue(target.value)
     };
 
-    const createNewColumn = () => {
+    const onSetNewColumn = () => {
         if (value) {
-            onSetColumns([...columns, {id: uuidv4(), title: value}])
-            onSetValue('')
+            setColumns([...columns, {id: uuidv4(), title: value}])
+            setValue('')
         }
         return
     };
@@ -36,12 +34,12 @@ const App: React.FC = () => {
         <Root>
 
             <Modal isActive={isLoginModalActive}>
-                <Login userName={userName} onSetUserName={onSetUserName} onSetModalActive={onSetModalActive}/>
+                <Login userName={userName} setUserName={setUserName} setModalActive={setModalActive}/>
             </Modal>
 
             <NewColumn type="text" onChange={handleChange} value={value}/>
 
-            <NewColumnButton onClick={createNewColumn}>Add Board</NewColumnButton>
+            <NewColumnButton onClick={onSetNewColumn}>Add Board</NewColumnButton>
 
             <Columns>
                 {columns.map((el) => {

@@ -6,7 +6,7 @@ interface ModalProps {
     children: React.ReactNode;
 }
 
- const Modal: React.FC<ModalProps> = ({isActive, children}) => {
+export const Modal: React.FC<ModalProps> = ({isActive, children}) => {
 
     return (
 
