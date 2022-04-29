@@ -1,22 +1,23 @@
 import React from "react";
 import styled from "styled-components";
 
+
 interface LoginProps {
     userName: string;
-    onSetUserName: (value: string) => void;
-    onSetModalActive:  (value: boolean) => void;
+    setUserName: (value: string) => void;
+    setModalActive:  (value: boolean) => void;
 }
-const Login: React.FC<LoginProps> = ({userName, onSetUserName, onSetModalActive}) => {
+export const Login: React.FC<LoginProps> = ({userName, setUserName, setModalActive}) => {
 
     const handleConfirm = () => {
         if (userName) {
-            onSetModalActive(false);
+            setModalActive(false);
         }
         return
     }
 
     const handleChange = ({target}: React.ChangeEvent<HTMLInputElement>) => {
-        onSetUserName(target.value)
+        setUserName(target.value)
     };
     return (
 
