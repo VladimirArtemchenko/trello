@@ -3,7 +3,7 @@ import Board from "./components/Board/Board";
 import styled from "styled-components";
 import {v4 as uuidv4} from "uuid";
 
-const initialColumnsName: { id: string, title: string }[] = [
+const initialColumnsName = [
     {id: uuidv4(), title: 'To do'},
     {id: uuidv4(), title: 'In Progress'},
     {id: uuidv4(), title: 'Testing'},
@@ -38,6 +38,8 @@ const App: React.FC = () => {
 
             <Boards>
                 {columns.map((el) => {
+                    let pageWidth = document.documentElement.scrollWidth
+                    console.log(pageWidth)
                     return (
                         <Board key={el.id} title={el.title}/>
                     )

@@ -6,7 +6,7 @@ interface ColumnProps {
     title: string
 };
 
-const Board:React.FC<ColumnProps> = ({title}: ColumnProps) => {
+const Board:React.FC<ColumnProps> = ({title}) => {
 
     const [value, onSetValue] = useState<string>('');
     const [toDoList, onSetToDoList] = useState<{ id:string,title:string }[]>([]);
