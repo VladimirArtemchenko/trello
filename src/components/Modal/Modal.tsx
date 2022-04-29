@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 interface ModalProps {
     isActive: boolean;
-    children:JSX.Element;
+    children: React.ReactNode;
 }
 
  const Modal: React.FC<ModalProps> = ({isActive, children}) => {
