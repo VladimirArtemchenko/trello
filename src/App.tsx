@@ -38,8 +38,6 @@ const App: React.FC = () => {
 
             <Boards>
                 {columns.map((el) => {
-                    let pageWidth = document.documentElement.scrollWidth
-                    console.log(pageWidth)
                     return (
                         <Board key={el.id} title={el.title}/>
                     )
