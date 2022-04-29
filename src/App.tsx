@@ -34,7 +34,7 @@ const App: React.FC = () => {
         <Root>
 
             <Modal isActive={isLoginModalActive}>
-                <Login userName={userName} setUserName={setUserName} setModalActive={setModalActive}/>
+                <Login userName={userName} onSetUserName={setUserName} onSetModalActive={setModalActive}/>
             </Modal>
 
             <NewColumn type="text" onChange={handleChange} value={value}/>
