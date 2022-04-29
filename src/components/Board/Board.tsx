@@ -8,18 +8,18 @@ interface ColumnProps {
 
 const Board:React.FC<ColumnProps> = ({title}) => {
 
-    const [value, onSetValue] = useState<string>('');
-    const [toDoList, onSetToDoList] = useState<{ id:string,title:string }[]>([]);
+    const [value, setValue] = useState<string>('');
+    const [toDoList, setToDoList] = useState<{ id:string,title:string }[]>([]);
 
     const handleChange = ({target}: React.ChangeEvent<HTMLInputElement>) => {
-        onSetValue(target.value)
+        setValue(target.value)
     };
 
     const onSetNewTask = () => {
 
         if (value) {
-            onSetToDoList([{id: uuidv4(),title:value}, ...toDoList])
-            onSetValue('')
+            setToDoList([{id: uuidv4(),title:value}, ...toDoList])
+            setValue('')
         }
         return
     };
@@ -36,7 +36,7 @@ const Board:React.FC<ColumnProps> = ({title}) => {
             <div>
                 {toDoList.map((el) => {
                     return (
-                        <Task id={el.id} key={el.id}>{el.title}</Task>
+                        <Task key={el.id}>{el.title}</Task>
                     )
                 })}
             </div>
