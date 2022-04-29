@@ -1,12 +1,12 @@
 import React, {useState} from "react";
 import styled from "styled-components";
+import { v4 as uuidv4 } from 'uuid';
 
 interface ColumnProps {
     title: string
-    id:string
 };
 
-const Board:React.FC<ColumnProps> = ({title,id}: ColumnProps) => {
+const Board:React.FC<ColumnProps> = ({title}: ColumnProps) => {
 
     const [value, onSetValue] = useState<string>('');
     const [toDoList, onSetToDoList] = useState<{ id:string,title:string }[]>([]);
@@ -18,7 +18,7 @@ const Board:React.FC<ColumnProps> = ({title,id}: ColumnProps) => {
     const onSetNewTask = () => {
 
         if (value) {
-            onSetToDoList([{id: `${id}-ToDo-${toDoList.length}`,title:value}, ...toDoList])
+            onSetToDoList([{id: uuidv4(),title:value}, ...toDoList])
             onSetValue('')
         }
         return
@@ -34,8 +34,7 @@ const Board:React.FC<ColumnProps> = ({title,id}: ColumnProps) => {
             </Form>
 
             <div>
-                {toDoList.map((el:{id:string,title:string}) => {
-                    console.log(el)
+                {toDoList.map((el) => {
                     return (
                         <Task id={el.id} key={el.id}>{el.title}</Task>
                     )

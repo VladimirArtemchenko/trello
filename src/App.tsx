@@ -1,12 +1,13 @@
 import React, {useState} from "react";
 import Board from "./components/Board/Board";
 import styled from "styled-components";
+import {v4 as uuidv4} from "uuid";
 
 const initialColumnsName: { id: string, title: string }[] = [
-    {id: "column-0", title: 'To do'},
-    {id: "column-1", title: 'In Progress'},
-    {id: "column-2", title: 'Testing'},
-    {id: "column-3", title: 'Done'},
+    {id: uuidv4(), title: 'To do'},
+    {id: uuidv4(), title: 'In Progress'},
+    {id: uuidv4(), title: 'Testing'},
+    {id: uuidv4(), title: 'Done'},
 ]
 
 const App: React.FC = () => {
@@ -21,7 +22,7 @@ const App: React.FC = () => {
     const createNewColumn = () => {
 
         if (value) {
-            onSetColumns([...columns, {id: `column-${columns.length}`, title: value}])
+            onSetColumns([...columns, {id: uuidv4(), title: value}])
             onSetValue('')
         }
         return
@@ -36,10 +37,9 @@ const App: React.FC = () => {
             <NewBoardButton onClick={createNewColumn}>Add Board</NewBoardButton>
 
             <Boards>
-                {columns.map((el: { id: string; title: string; }) => {
-                    console.log(el)
+                {columns.map((el) => {
                     return (
-                        <Board id={el.id} key={el.id} title={el.title}/>
+                        <Board key={el.id} title={el.title}/>
                     )
                 })}
             </Boards>
