@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {Board, Login, Modal} from './components';
+import {Column, Login, Modal} from './components';
 import styled from "styled-components";
 import {v4 as uuidv4} from "uuid";
 
@@ -14,17 +14,17 @@ const App: React.FC = () => {
 
     const [userName, setUserName] = useState<string>('');
     const [isLoginModalActive, setModalActive] = useState<boolean>(true);
-    const [value, setValue] = useState<string>('');
+    const [columnTitle, setColumnTitle] = useState<string>('');
     const [columns, setColumns] = useState(initialColumnsName);
 
     const handleChange = ({target}: React.ChangeEvent<HTMLInputElement>) => {
-        setValue(target.value)
+        setColumnTitle(target.value)
     };
 
-    const onSetNewColumn = () => {
-        if (value) {
-            setColumns([...columns, {id: uuidv4(), title: value}])
-            setValue('')
+    const handleCreateColumn = () => {
+        if (columnTitle) {
+            setColumns([...columns, {id: uuidv4(), title: columnTitle}])
+            setColumnTitle('')
         }
         return
     };
@@ -37,14 +37,14 @@ const App: React.FC = () => {
                 <Login userName={userName} onSetUserName={setUserName} onSetModalActive={setModalActive}/>
             </Modal>
 
-            <NewColumn type="text" onChange={handleChange} value={value}/>
+            <NewColumn type="text" onChange={handleChange} value={columnTitle}/>
 
-            <NewColumnButton onClick={onSetNewColumn}>Add Board</NewColumnButton>
+            <NewColumnButton onClick={handleCreateColumn}>Add Board</NewColumnButton>
 
             <Columns>
                 {columns.map((el) => {
                     return (
-                        <Board key={el.id} title={el.title}/>
+                        <Column columns={columns} onSetColumns={setColumns} columnId={el.id} key={el.id} columnTitle={el.title}/>
                     )
                 })}
             </Columns>
@@ -68,9 +68,11 @@ const NewColumn = styled.input`
   border-radius: 5px;
 `;
 const Root = styled.div`
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  width: 100%;
+  width: 90%;
+  align-items: center;
 `;
 const NewColumnButton = styled.button`
   font-size: 18px;
