@@ -3,11 +3,16 @@ import styled from "styled-components";
 import {v4 as uuidv4} from 'uuid';
 import trashIcon from "../../images/trash.svg";
 
+interface Column {
+    id: string
+    title: string
+}
+
 interface ColumnProps {
     title: string
     columnId: string
-    columns: { id: string, title: string }[]
-    onSetColumns: (value: { id: string, title: string }[]) => void;
+    columns: Column[]
+    onSetColumns: (value: Column[]) => void;
 };
 
 const Column: React.FC<ColumnProps> = ({title, columnId, onSetColumns, columns}) => {
@@ -23,25 +28,24 @@ const Column: React.FC<ColumnProps> = ({title, columnId, onSetColumns, columns})
         if (value) {
             setToDoList([{id: uuidv4(), title: value}, ...toDoList])
             setValue('')
-            return
         }
     };
 
-    const handleDeleteColumnButtonClick = () => {
-        columns.splice(columns.findIndex(element => element.id === columnId), 1);
-        onSetColumns([...columns]);
+    const handleDeleteColumnButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        const newColumns = columns.filter(element => element.id !== (event.target as HTMLButtonElement).id);
+        onSetColumns([...newColumns]);
     };
 
     const handleDeleteTaskButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        toDoList.splice(toDoList.findIndex(element => element.id === (event.target as HTMLButtonElement).id), 1);
-        setToDoList([...toDoList]);
+        const newToDoList = toDoList.filter(element => element.id !== (event.target as HTMLButtonElement).id);
+        setToDoList([...newToDoList]);
     };
 
     return (
         <Root>
             <Flex>
                 <Title>{title}</Title>
-                <DeleteColumnButton onClick={handleDeleteColumnButtonClick}/>
+                <DeleteColumnButton onClick={handleDeleteColumnButtonClick} id={columnId}/>
             </Flex>
 
             <Form>
@@ -54,7 +58,7 @@ const Column: React.FC<ColumnProps> = ({title, columnId, onSetColumns, columns})
                     return (
                         <Flex>
                             <Task key={el.id}>{el.title}</Task>
-                            <DeleteTaskButton id = {el.id} onClick={handleDeleteTaskButtonClick} />
+                            <DeleteTaskButton id={el.id} onClick={handleDeleteTaskButtonClick}/>
                         </Flex>
                     )
                 })}

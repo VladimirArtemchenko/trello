@@ -26,7 +26,6 @@ const App: React.FC = () => {
             setColumns([...columns, {id: uuidv4(), title: value}])
             setValue('')
         }
-        return
     };
 
     return (
