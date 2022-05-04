@@ -13,12 +13,12 @@ const Login: React.FC<LoginProps> = ({userName, onSetUserName, onSetModalActive}
         if (userName) {
             onSetModalActive(false);
         }
-        return
     }
 
     const handleChange = ({target}: React.ChangeEvent<HTMLInputElement>) => {
         onSetUserName(target.value)
     };
+
     return (
 
         <Root>

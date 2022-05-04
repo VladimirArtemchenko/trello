@@ -2,11 +2,16 @@ import React, {useState} from "react";
 import styled from "styled-components";
 import trashIcon from "../../images/trash.svg";
 
+interface ToDoList {
+    id: string
+    title: string
+}
+
 interface TaskProps {
     task: string
     taskId: string
-    toDoList: { id: string, title: string }[]
-    onSetToDoList: (value: { id: string, title: string }[]) => void;
+    toDoList: ToDoList[]
+    onSetToDoList: (value: ToDoList[]) => void;
 };
 
 const Task: React.FC<TaskProps> = ({task, taskId, toDoList, onSetToDoList}) => {
@@ -20,26 +25,32 @@ const Task: React.FC<TaskProps> = ({task, taskId, toDoList, onSetToDoList}) => {
         setTaskActive(!isTaskActive)
 
     }
+
     const handleChangeTask = ({target}: React.ChangeEvent<HTMLInputElement>) => {
         setValueTask((target as HTMLInputElement).value)
-        let index = toDoList.findIndex(element => element.id === (target as HTMLInputElement).id);
-        toDoList[index].title = (target as HTMLInputElement).value;
-        onSetToDoList([...toDoList])
-
+        const newToDoList = toDoList.map(element => {
+            if( element.id === (target as HTMLInputElement).id) {
+                element.title = (target as HTMLInputElement).value
+            }
+            return element
+        });
+        onSetToDoList([...newToDoList])
     };
 
     return (
         <Root>
             <Flex>
-            <Text isTaskActive={isTaskActive} onClick={handleEditTask}>{task}</Text>
-            <EditTask isTaskEditActive={isTaskEditActive} onChange={handleChangeTask} onBlur={handleEditTask} id={taskId} value={valueTask} name={task}/>
+                <Text isTaskActive={isTaskActive} onClick={handleEditTask}>{task}</Text>
+                <EditTask isTaskEditActive={isTaskEditActive} onChange={handleChangeTask} onBlur={handleEditTask}
+                          id={taskId} value={valueTask} name={task}/>
             </Flex>
         </Root>
     )
 }
+
 export default Task
+
 const Root = styled.div`
-  
 `;
 const Text = styled.p<{ isTaskActive: boolean }>`
   width: 200px;

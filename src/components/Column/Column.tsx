@@ -3,11 +3,16 @@ import styled from "styled-components";
 import { v4 as uuidv4 } from 'uuid';
 import {Task} from "../index";
 
+interface Column {
+    id: string
+    title: string
+}
+
 interface ColumnProps {
     columnTitle: string
     columnId: string
-    columns: { id: string, title: string }[]
-    onSetColumns: (value: { id: string, title: string }[]) => void;
+    columns: Column[]
+    onSetColumns: (value: Column[]) => void;
 };
 
 const Column:React.FC<ColumnProps> = ({columnTitle, columnId, onSetColumns, columns}) => {
@@ -26,7 +31,6 @@ const Column:React.FC<ColumnProps> = ({columnTitle, columnId, onSetColumns, colu
         if (taskTitle) {
             setToDoList([{id: uuidv4(), title: taskTitle}, ...toDoList])
             setTaskTitle('')
-            return
         }
     };
 
@@ -36,18 +40,21 @@ const Column:React.FC<ColumnProps> = ({columnTitle, columnId, onSetColumns, colu
     }
 
     const handleChangeColumn = ({target}: React.ChangeEvent<HTMLInputElement>) => {
-        setValueColumn(target.value)
-        let index = columns.findIndex(element => element.id === (target as HTMLInputElement).id);
-        columns[index].title=target.value;
-        onSetColumns([...columns])
-
+        setValueColumn((target as HTMLInputElement).value)
+        const newColumns = columns.map(element => {
+            if( element.id === (target as HTMLInputElement).id) {
+                element.title = (target as HTMLInputElement).value
+            }
+            return element
+        });
+        onSetColumns([...newColumns])
     };
 
     return (
         <Root>
             <Flex>
                 <Title isTitleActive={isTitleActive} onClick={handleEditColumn} >{columnTitle}</Title>
-                <EditTitle autoFocus={true} isEditActive={isColumnEditActive} onChange={handleChangeColumn} onBlur={handleEditColumn} id={columnId} value={valueColumn} name={columnTitle}/>
+                <EditTitle isEditActive={isColumnEditActive} onChange={handleChangeColumn} onBlur={handleEditColumn} id={columnId} value={valueColumn} name={columnTitle}/>
             </Flex>
 
             <Form>
