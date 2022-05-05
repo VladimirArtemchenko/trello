@@ -51,11 +51,17 @@ const Column:React.FC<ColumnProps> = ({columnTitle, columnId, onSetColumns, colu
         onSetColumns([...newColumns])
     };
 
+    const handleDeleteColumnButtonClick = () => {
+        columns.splice(columns.findIndex(element => element.id === columnId), 1);
+        onSetColumns([...columns]);
+    };
+
     return (
         <Root>
             <Flex>
                 <Title isTitleActive={isTitleActive} onClick={handleEditColumn} >{columnTitle}</Title>
                 <EditTitle isEditActive={isColumnEditActive} onChange={handleChangeColumn} onBlur={handleEditColumn} value={valueColumn} name={columnTitle}/>
+                <DeleteColumnButton onClick={handleDeleteColumnButtonClick}/>
             </Flex>
 
             <Form>
@@ -124,4 +130,15 @@ const EditTitle = styled.input<{isEditActive:boolean}>`
   margin: 0 0 5px 0;
   padding: 0;
   display: ${props => props.isEditActive ? "block" : "none"};
+`;
+
+const DeleteColumnButton = styled.button`
+  padding: 0;
+  margin: 0;
+  background: center/100% url(${trashIcon});
+  font-size: 18px;
+  border: none;
+  border-radius: 5px;
+  width: 30px;
+  height: 30px;
 `;

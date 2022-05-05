@@ -37,12 +37,19 @@ const Task: React.FC<TaskProps> = ({task, taskId, toDoList, onSetToDoList}) => {
         onSetToDoList([...newToDoList])
     };
 
+    const handleDeleteTaskButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        toDoList.splice(toDoList.findIndex(element => element.id === taskId), 1);
+        onSetToDoList([...toDoList]);
+    };
+
     return (
         <Root>
             <Flex>
                 <Text isTaskActive={isTaskActive} onClick={handleEditTask}>{task}</Text>
                 <EditTask isTaskEditActive={isTaskEditActive} onChange={handleChangeTask} onBlur={handleEditTask}
                          value={valueTask} name={task}/>
+                <DeleteTaskButton onClick={handleDeleteTaskButtonClick} />
+
             </Flex>
         </Root>
     )
@@ -78,4 +85,14 @@ const EditTask = styled.input<{ isTaskEditActive: boolean }>`
   margin: 5px 0 0 0;
   padding: 0;
   display: ${props => props.isTaskEditActive ? "block" : "none"};
+`;
+const DeleteTaskButton = styled.button`
+  padding: 0;
+  margin: 0;
+  background: center/100% url(${trashIcon});
+  font-size: 18px;
+  border: none;
+  border-radius: 5px;
+  width: 30px;
+  height: 30px;
 `;
