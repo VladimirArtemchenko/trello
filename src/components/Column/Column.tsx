@@ -32,12 +32,12 @@ const Column: React.FC<ColumnProps> = ({title, columnId, onSetColumns, columns})
     };
 
     const handleDeleteColumnButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        const newColumns = columns.filter(element => element.id !== (event.target as HTMLButtonElement).id);
+        const newColumns = columns.filter(element => element.id !== columnId);
         onSetColumns([...newColumns]);
     };
 
     const handleDeleteTaskButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        const newToDoList = toDoList.filter(element => element.id !== (event.target as HTMLButtonElement).id);
+        const newToDoList = toDoList.filter(element => element.id !== event.currentTarget.id);
         setToDoList([...newToDoList]);
     };
 
@@ -45,7 +45,7 @@ const Column: React.FC<ColumnProps> = ({title, columnId, onSetColumns, columns})
         <Root>
             <Flex>
                 <Title>{title}</Title>
-                <DeleteColumnButton onClick={handleDeleteColumnButtonClick} id={columnId}/>
+                <DeleteColumnButton onClick={handleDeleteColumnButtonClick}/>
             </Flex>
 
             <Form>
