@@ -20,11 +20,12 @@ const App: React.FC = () => {
     const handleChange = ({target}: React.ChangeEvent<HTMLInputElement>) => {
         setColumnTitle(target.value)
     };
-
+    
     const handleCreateColumn = () => {
         if (columnTitle) {
             setColumns([...columns, {id: uuidv4(), title: columnTitle}])
             setColumnTitle('')
+
         }
     };
 
