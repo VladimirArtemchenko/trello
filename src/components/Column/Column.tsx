@@ -1,7 +1,8 @@
 import React, {useState} from "react";
 import styled from "styled-components";
-import {v4 as uuidv4} from 'uuid';
 import trashIcon from "../../images/trash.svg";
+import { v4 as uuidv4 } from 'uuid';
+import {Task} from "../index";
 
 interface Column {
     id: string
@@ -9,57 +10,63 @@ interface Column {
 }
 
 interface ColumnProps {
-    title: string
+    columnTitle: string
     columnId: string
     columns: Column[]
     onSetColumns: (value: Column[]) => void;
 };
 
-const Column: React.FC<ColumnProps> = ({title, columnId, onSetColumns, columns}) => {
+const Column:React.FC<ColumnProps> = ({columnTitle, columnId, onSetColumns, columns}) => {
 
-    const [value, setValue] = useState<string>('');
+    const [taskTitle, setTaskTitle] = useState<string>('');
     const [toDoList, setToDoList] = useState<{ id: string, title: string }[]>([]);
+    const [valueColumn, setValueColumn] = useState<string>(columnTitle);
+    const [isColumnEditActive, setColumnEditActive] = useState<boolean>(false);
+    const [isTitleActive, setTitleActive] = useState<boolean>(true);
 
     const handleChange = ({target}: React.ChangeEvent<HTMLInputElement>) => {
-        setValue(target.value)
+        setTaskTitle(target.value)
     };
 
-    const onSetNewTask = () => {
-        if (value) {
-            setToDoList([{id: uuidv4(), title: value}, ...toDoList])
-            setValue('')
+    const handleCreateTask = () => {
+        if (taskTitle) {
+            setToDoList([{id: uuidv4(), title: taskTitle}, ...toDoList])
+            setTaskTitle('')
         }
     };
 
-    const handleDeleteColumnButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        const newColumns = columns.filter(element => element.id !== columnId);
-        onSetColumns([...newColumns]);
-    };
+    const handleEditColumn = () => {
+        setColumnEditActive(!isColumnEditActive)
+        setTitleActive (!isTitleActive)
+    }
 
-    const handleDeleteTaskButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        const newToDoList = toDoList.filter(element => element.id !== event.currentTarget.id);
-        setToDoList([...newToDoList]);
+    const handleChangeColumn = ({target}: React.ChangeEvent<HTMLInputElement>) => {
+        setValueColumn(target.value)
+        const newColumns = columns.map(element => {
+            if( element.id === columnId ){
+                element.title = target.value
+            }
+            return element
+        });
+        onSetColumns([...newColumns])
     };
 
     return (
         <Root>
             <Flex>
-                <Title>{title}</Title>
-                <DeleteColumnButton onClick={handleDeleteColumnButtonClick}/>
+                <Title isTitleActive={isTitleActive} onClick={handleEditColumn} >{columnTitle}</Title>
+                <EditTitle isEditActive={isColumnEditActive} onChange={handleChangeColumn} onBlur={handleEditColumn} value={valueColumn} name={columnTitle}/>
             </Flex>
 
             <Form>
-                <NewTask onChange={handleChange} value={value} name={title}/>
-                <NewTaskButton onClick={onSetNewTask}>Add</NewTaskButton>
+                <NewTask onChange={handleChange} value={taskTitle} name={taskTitle}/>
+                <NewTaskButton onClick={handleCreateTask}>Add</NewTaskButton>
             </Form>
 
             <div>
                 {toDoList.map((el) => {
                     return (
-                        <Flex>
-                            <Task key={el.id}>{el.title}</Task>
-                            <DeleteTaskButton id={el.id} onClick={handleDeleteTaskButtonClick}/>
-                        </Flex>
+                        <Task task={el.title} taskId={el.id} toDoList={toDoList} onSetToDoList={setToDoList} key={el.id} />
                     )
                 })}
             </div>
@@ -81,19 +88,13 @@ const Form = styled.div`
   display: flex;
   gap: 10px;
 `;
-const Title = styled.h1`
+const Title = styled.h1<{ isTitleActive: boolean }>`
+  width: 250px;
   text-align: center;
   font-size: 30px;
-  margin: 0;
-`;
-const Task = styled.p`
-  font-size: 18px;
+  margin: 0 0 5px 0;
   word-wrap: break-word;
-  margin: 5px 0 0 0;
-  border-radius: 10px;
-  border: solid 1px gray;
-  box-sizing: border-box;
-  background: darkgray;
+  display: ${props => props.isTitleActive ? "block" : "none"};
 `;
 const NewTaskButton = styled.button`
   font-size: 18px;
@@ -111,29 +112,16 @@ const NewTask = styled.input`
   border-radius: 5px;
   min-width: 170px;
 `;
-
 const Flex = styled.div`
   display: flex;
   gap: 10px;
   justify-content: space-between;
 `;
-const DeleteColumnButton = styled.button`
+const EditTitle = styled.input<{isEditActive:boolean}>`
+  width: 250px;
+  text-align: center;
+  font-size: 30px;
+  margin: 0 0 5px 0;
   padding: 0;
-  margin: 0;
-  background: center/100% url(${trashIcon});
-  font-size: 18px;
-  border: none;
-  border-radius: 5px;
-  width: 30px;
-  height: 30px;
-`;
-const DeleteTaskButton = styled.button`
-  padding: 0;
-  margin: 0;
-  background: center/100% url(${trashIcon});
-  font-size: 18px;
-  border: none;
-  border-radius: 5px;
-  width: 30px;
-  height: 30px;
+  display: ${props => props.isEditActive ? "block" : "none"};
 `;
