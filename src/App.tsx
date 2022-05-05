@@ -23,8 +23,10 @@ const App: React.FC = () => {
 
     const onSetNewColumn = () => {
         if (value) {
+
             setColumns([...columns, {id: uuidv4(), title: value}])
             setValue('')
+
         }
     };
 
