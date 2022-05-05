@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {Board, Login, Modal} from './components';
+import {Column, Login, Modal} from './components';
 import styled from "styled-components";
 import {v4 as uuidv4} from "uuid";
 
@@ -26,7 +26,6 @@ const App: React.FC = () => {
             setColumns([...columns, {id: uuidv4(), title: value}])
             setValue('')
         }
-        return
     };
 
     return (
@@ -44,7 +43,7 @@ const App: React.FC = () => {
             <Columns>
                 {columns.map((el) => {
                     return (
-                        <Board key={el.id} title={el.title}/>
+                        <Column columns={columns} onSetColumns={setColumns} columnId={el.id} key={el.id} title={el.title}/>
                     )
                 })}
             </Columns>
