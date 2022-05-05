@@ -27,10 +27,10 @@ const Task: React.FC<TaskProps> = ({task, taskId, toDoList, onSetToDoList}) => {
     }
 
     const handleChangeTask = ({target}: React.ChangeEvent<HTMLInputElement>) => {
-        setValueTask((target as HTMLInputElement).value)
+        setValueTask(target.value)
         const newToDoList = toDoList.map(element => {
-            if( element.id === (target as HTMLInputElement).id) {
-                element.title = (target as HTMLInputElement).value
+            if ( element.id === taskId ) {
+                element.title = target.value
             }
             return element
         });
@@ -42,7 +42,7 @@ const Task: React.FC<TaskProps> = ({task, taskId, toDoList, onSetToDoList}) => {
             <Flex>
                 <Text isTaskActive={isTaskActive} onClick={handleEditTask}>{task}</Text>
                 <EditTask isTaskEditActive={isTaskEditActive} onChange={handleChangeTask} onBlur={handleEditTask}
-                          id={taskId} value={valueTask} name={task}/>
+                         value={valueTask} name={task}/>
             </Flex>
         </Root>
     )

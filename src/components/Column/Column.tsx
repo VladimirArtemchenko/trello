@@ -40,10 +40,10 @@ const Column:React.FC<ColumnProps> = ({columnTitle, columnId, onSetColumns, colu
     }
 
     const handleChangeColumn = ({target}: React.ChangeEvent<HTMLInputElement>) => {
-        setValueColumn((target as HTMLInputElement).value)
+        setValueColumn(target.value)
         const newColumns = columns.map(element => {
-            if( element.id === (target as HTMLInputElement).id) {
-                element.title = (target as HTMLInputElement).value
+            if( element.id === columnId ){
+                element.title = target.value
             }
             return element
         });
@@ -54,7 +54,7 @@ const Column:React.FC<ColumnProps> = ({columnTitle, columnId, onSetColumns, colu
         <Root>
             <Flex>
                 <Title isTitleActive={isTitleActive} onClick={handleEditColumn} >{columnTitle}</Title>
-                <EditTitle isEditActive={isColumnEditActive} onChange={handleChangeColumn} onBlur={handleEditColumn} id={columnId} value={valueColumn} name={columnTitle}/>
+                <EditTitle isEditActive={isColumnEditActive} onChange={handleChangeColumn} onBlur={handleEditColumn} value={valueColumn} name={columnTitle}/>
             </Flex>
 
             <Form>
