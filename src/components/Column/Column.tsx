@@ -1,7 +1,9 @@
 import React, {useState} from "react";
 import styled from "styled-components";
+
 import { v4 as uuidv4 } from 'uuid';
 import {Task} from "../index";
+
 
 interface Column {
     id: string
@@ -14,6 +16,7 @@ interface ColumnProps {
     columns: Column[]
     onSetColumns: (value: Column[]) => void;
 };
+
 
 const Column:React.FC<ColumnProps> = ({columnTitle, columnId, onSetColumns, columns}) => {
 
@@ -48,11 +51,13 @@ const Column:React.FC<ColumnProps> = ({columnTitle, columnId, onSetColumns, colu
             return element
         });
         onSetColumns([...newColumns])
+
     };
 
     return (
         <Root>
             <Flex>
+
                 <Title isTitleActive={isTitleActive} onClick={handleEditColumn} >{columnTitle}</Title>
                 <EditTitle isEditActive={isColumnEditActive} onChange={handleChangeColumn} onBlur={handleEditColumn} value={valueColumn} name={columnTitle}/>
             </Flex>
@@ -60,6 +65,7 @@ const Column:React.FC<ColumnProps> = ({columnTitle, columnId, onSetColumns, colu
             <Form>
                 <NewTask onChange={handleChange} value={taskTitle} name={taskTitle}/>
                 <NewTaskButton onClick={handleCreateTask}>Add</NewTaskButton>
+
             </Form>
 
             <div>
@@ -87,6 +93,7 @@ const Form = styled.div`
   display: flex;
   gap: 10px;
 `;
+
 const Title = styled.h1<{ isTitleActive: boolean }>`
   width: 250px;
   text-align: center;
@@ -94,6 +101,7 @@ const Title = styled.h1<{ isTitleActive: boolean }>`
   margin: 0 0 5px 0;
   word-wrap: break-word;
   display: ${props => props.isTitleActive ? "block" : "none"};
+
 `;
 const NewTaskButton = styled.button`
   font-size: 18px;
@@ -116,6 +124,7 @@ const Flex = styled.div`
   gap: 10px;
   justify-content: space-between;
 `;
+
 const EditTitle = styled.input<{isEditActive:boolean}>`
   width: 250px;
   text-align: center;
@@ -124,5 +133,3 @@ const EditTitle = styled.input<{isEditActive:boolean}>`
   padding: 0;
   display: ${props => props.isEditActive ? "block" : "none"};
 `;
-
-

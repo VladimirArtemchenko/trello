@@ -7,6 +7,7 @@ interface LoginProps {
     onSetUserName: (value: string) => void;
     onSetModalActive:  (value: boolean) => void;
 }
+
 const Login: React.FC<LoginProps> = ({userName, onSetUserName, onSetModalActive}) => {
 
     const handleConfirm = () => {

@@ -14,6 +14,7 @@ const App: React.FC = () => {
 
     const [userName, setUserName] = useState<string>('');
     const [isLoginModalActive, setModalActive] = useState<boolean>(true);
+
     const [columnTitle, setColumnTitle] = useState<string>('');
     const [columns, setColumns] = useState(initialColumnsName);
 
@@ -25,6 +26,8 @@ const App: React.FC = () => {
         if (columnTitle) {
             setColumns([...columns, {id: uuidv4(), title: columnTitle}])
             setColumnTitle('')
+
+
         }
     };
 
@@ -36,14 +39,18 @@ const App: React.FC = () => {
                 <Login userName={userName} onSetUserName={setUserName} onSetModalActive={setModalActive}/>
             </Modal>
 
+
             <NewColumn type="text" onChange={handleChange} value={columnTitle}/>
 
             <NewColumnButton onClick={handleCreateColumn}>Add Board</NewColumnButton>
 
+
             <Columns>
                 {columns.map((el) => {
                     return (
+
                         <Column columns={columns} onSetColumns={setColumns} columnId={el.id} key={el.id} columnTitle={el.title}/>
+
                     )
                 })}
             </Columns>
