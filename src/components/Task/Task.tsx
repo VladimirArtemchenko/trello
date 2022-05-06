@@ -1,56 +1,72 @@
 import React, {useState} from "react";
 import styled from "styled-components";
 import trashIcon from "../../images/trash.svg";
+import {TaskProps} from "../../interfaces";
 
-interface ToDoList {
-    id: string
-    title: string
-}
-
-interface TaskProps {
-    task: string
-    taskId: string
-    toDoList: ToDoList[]
-    onSetToDoList: (value: ToDoList[]) => void;
-};
-
-const Task: React.FC<TaskProps> = ({task, taskId, toDoList, onSetToDoList}) => {
+const Task: React.FC<TaskProps> = ({task, taskId, columns, onSetColumns, onShowTaskModal, columnId}) => {
 
     const [valueTask, setValueTask] = useState<string>(task);
     const [isTaskEditActive, setTaskEditActive] = useState<boolean>(false);
     const [isTaskActive, setTaskActive] = useState<boolean>(true);
 
     const handleEditTask = () => {
-        setTaskEditActive(!isTaskEditActive)
+        columns.map(el => {
+            el.toDoList.map((el) => {
+                if (el.id === taskId) {
+                    setValueTask(el.title)
+                }
+            })
+        })
         setTaskActive(!isTaskActive)
-
+        setTaskEditActive(!isTaskEditActive)
     }
 
     const handleChangeTask = ({target}: React.ChangeEvent<HTMLInputElement>) => {
         setValueTask(target.value)
-        const newToDoList = toDoList.map(element => {
-            if ( element.id === taskId ) {
-                element.title = target.value
+    }
+
+    const handleTask =()=>{
+        const newColumns = columns.map(element => {
+            element.toDoList.map(element => {
+                if (element.id === taskId) {
+                    element.title = valueTask
+                    return(element)
+                }
+            })
+            return element
+        }
+    )
+        onSetColumns([...newColumns])
+        setTaskActive(!isTaskActive)
+        setTaskEditActive(!isTaskEditActive)
+    }
+
+    const handleDeleteTask = () => {
+        const newColumns = columns.map(element => {
+            if (element.id === columnId) {
+                element.toDoList.splice(element.toDoList.findIndex(element => element.id === taskId),1);
             }
             return element
-        });
-        onSetToDoList([...newToDoList])
-    };
-
-    const handleDeleteTaskButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        toDoList.splice(toDoList.findIndex(element => element.id === taskId), 1);
-        onSetToDoList([...toDoList]);
+        })
+        onSetColumns([...newColumns]);
     };
 
     return (
         <Root>
+
             <Flex>
-                <Text isTaskActive={isTaskActive} onClick={handleEditTask}>{task}</Text>
-                <EditTask isTaskEditActive={isTaskEditActive} onChange={handleChangeTask} onBlur={handleEditTask}
-                         value={valueTask} name={task}/>
-                <DeleteTaskButton onClick={handleDeleteTaskButtonClick} />
+
+                <Text isTaskActive={isTaskActive} onClick={onShowTaskModal} id={taskId}>{task}</Text>
+
+                <EditTask isTaskEditActive={isTaskEditActive} onChange={handleChangeTask} onBlur={handleTask}
+                          value={valueTask} name={task}/>
+
+                <EditButton onClick={handleEditTask}>Edit</EditButton>
+
+                <DeleteTaskButton onClick={handleDeleteTask}/>
 
             </Flex>
+
         </Root>
     )
 }
@@ -94,5 +110,14 @@ const DeleteTaskButton = styled.button`
   border: none;
   border-radius: 5px;
   width: 30px;
+  height: 30px;
+`;
+const EditButton = styled.button`
+  padding: 0;
+  margin: 0;
+  font-size: 18px;
+  border: none;
+  border-radius: 5px;
+  width: 50px;
   height: 30px;
 `;

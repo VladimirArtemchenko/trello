@@ -1,15 +1,10 @@
 import React from "react";
 import styled from "styled-components";
+import {LoginProps} from "../../interfaces";
 
 
-interface LoginProps {
-    userName: string;
-    onSetUserName: (value: string) => void;
-    onSetModalActive: (value: boolean) => void;
-}
+const Login: React.FC<LoginProps> = ({userName, onSetUserName, onSetModalActive,isActive}) => {
 
-
-const Login: React.FC<LoginProps> = ({userName, onSetUserName, onSetModalActive}) => {
 
     const handleConfirm = () => {
         if (userName) {
@@ -23,11 +18,15 @@ const Login: React.FC<LoginProps> = ({userName, onSetUserName, onSetModalActive}
 
     return (
 
-        <Root>
+        <Root isActive={isActive}>
 
-            <Name type="text" onChange={handleChange} value={userName} placeholder={'Введите свое имя?'}/>
+            <Container>
 
-            <ConfirmButton type="button" onClick={handleConfirm}>Confirm</ConfirmButton>
+                <Name type="text" onChange={handleChange} value={userName} placeholder={'Введите свое имя?'}/>
+
+                <ConfirmButton type="button" onClick={handleConfirm}>Confirm</ConfirmButton>
+
+            </Container>
 
         </Root>
 
@@ -36,7 +35,19 @@ const Login: React.FC<LoginProps> = ({userName, onSetUserName, onSetModalActive}
 
 export default Login
 
-const Root = styled.div`
+const Root = styled.div<{ isActive:boolean }>`
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  left: 0;
+  top: 0;
+  background: rgba(0, 0, 0, 0.4);
+  visibility: ${props => props.isActive ? "visible" : "hidden"};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;

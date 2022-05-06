@@ -3,26 +3,15 @@ import styled from "styled-components";
 import trashIcon from "../../images/trash.svg";
 import { v4 as uuidv4 } from 'uuid';
 import {Task} from "../index";
+import {ColumnProps} from "../../interfaces";
 
-interface Column {
-    id: string
-    title: string
-}
-
-interface ColumnProps {
-    columnTitle: string
-    columnId: string
-    columns: Column[]
-    onSetColumns: (value: Column[]) => void;
-};
-
-const Column:React.FC<ColumnProps> = ({columnTitle, columnId, onSetColumns, columns}) => {
+const Column:React.FC<ColumnProps> = ({columnTitle, columnId, onSetColumns, columns,onShowTaskModal}) => {
 
     const [taskTitle, setTaskTitle] = useState<string>('');
-    const [toDoList, setToDoList] = useState<{ id: string, title: string }[]>([]);
-    const [valueColumn, setValueColumn] = useState<string>(columnTitle);
-    const [isColumnEditActive, setColumnEditActive] = useState<boolean>(false);
+    const [title, setTitle] = useState<string>(columnTitle);
+    const [isEditActive, setEditActive] = useState<boolean>(false);
     const [isTitleActive, setTitleActive] = useState<boolean>(true);
+    const columnIndex = (columns.findIndex(element => element.id === columnId));
 
     const handleChange = ({target}: React.ChangeEvent<HTMLInputElement>) => {
         setTaskTitle(target.value)
@@ -30,18 +19,25 @@ const Column:React.FC<ColumnProps> = ({columnTitle, columnId, onSetColumns, colu
 
     const handleCreateTask = () => {
         if (taskTitle) {
-            setToDoList([{id: uuidv4(), title: taskTitle}, ...toDoList])
-            setTaskTitle('')
+            const newColumn = columns.map(element => {
+                    if (element.id === columnId) {
+                        element.toDoList.unshift({id: uuidv4(), title: taskTitle, description: 'Введите подробное описание',  comment: []});
+                    }
+                return element
+                }
+            )
+            onSetColumns([...newColumn]);
+            setTaskTitle('');
         }
-    };
+    }
 
     const handleEditColumn = () => {
-        setColumnEditActive(!isColumnEditActive)
+        setEditActive(!isEditActive)
         setTitleActive (!isTitleActive)
     }
 
     const handleChangeColumn = ({target}: React.ChangeEvent<HTMLInputElement>) => {
-        setValueColumn(target.value)
+        setTitle(target.value)
         const newColumns = columns.map(element => {
             if( element.id === columnId ){
                 element.title = target.value
@@ -52,15 +48,15 @@ const Column:React.FC<ColumnProps> = ({columnTitle, columnId, onSetColumns, colu
     };
 
     const handleDeleteColumnButtonClick = () => {
-        columns.splice(columns.findIndex(element => element.id === columnId), 1);
-        onSetColumns([...columns]);
+        const newColumns = columns.filter(element => element.id !== columnId);
+        onSetColumns([...newColumns]);
     };
 
     return (
         <Root>
             <Flex>
                 <Title isTitleActive={isTitleActive} onClick={handleEditColumn} >{columnTitle}</Title>
-                <EditTitle isEditActive={isColumnEditActive} onChange={handleChangeColumn} onBlur={handleEditColumn} value={valueColumn} name={columnTitle}/>
+                <EditTitle isEditActive={isEditActive} onChange={handleChangeColumn} onBlur={handleEditColumn} value={title} name={columnTitle}/>
                 <DeleteColumnButton onClick={handleDeleteColumnButtonClick}/>
             </Flex>
 
@@ -70,9 +66,9 @@ const Column:React.FC<ColumnProps> = ({columnTitle, columnId, onSetColumns, colu
             </Form>
 
             <div>
-                {toDoList.map((el) => {
+                {columns[columnIndex].toDoList.map((el) => {
                     return (
-                        <Task task={el.title} taskId={el.id} toDoList={toDoList} onSetToDoList={setToDoList} key={el.id} />
+                        <Task columnId={columnId} columns={columns} onSetColumns={onSetColumns} onShowTaskModal={onShowTaskModal} task={el.title} taskId={el.id} key={el.id}/>
                     )
                 })}
             </div>
