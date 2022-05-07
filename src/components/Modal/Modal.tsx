@@ -5,7 +5,9 @@ import {ModalProps} from "../../interfaces";
 const Modal: React.FC<ModalProps> = ({children}) => {
 
     return (
+
         <Root>{children}</Root>
+
     )
 }
 

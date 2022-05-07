@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useCallback} from "react";
 import styled from "styled-components";
 import {LoginProps} from "../../interfaces";
 
@@ -12,9 +12,9 @@ const Login: React.FC<LoginProps> = ({userName, onSetUserName, onSetModalActive,
         }
     }
 
-    const handleChange = ({target}: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = useCallback((({target}: React.ChangeEvent<HTMLInputElement>) => {
         onSetUserName(target.value)
-    };
+    }), [])
 
     return (
 

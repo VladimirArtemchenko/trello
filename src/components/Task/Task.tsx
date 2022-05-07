@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useCallback, useState} from "react";
 import styled from "styled-components";
 import trashIcon from "../../images/trash.svg";
 import {TaskProps} from "../../interfaces";
@@ -21,9 +21,9 @@ const Task: React.FC<TaskProps> = ({task, taskId, columns, onSetColumns, onShowT
         setTaskEditActive(!isTaskEditActive)
     }
 
-    const handleChangeTask = ({target}: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChangeTask = useCallback((({target}: React.ChangeEvent<HTMLInputElement>) => {
         setValueTask(target.value)
-    }
+    }), [])
 
     const handleTask = () => {
         const newColumns = columns.map(column => {
@@ -48,27 +48,32 @@ const Task: React.FC<TaskProps> = ({task, taskId, columns, onSetColumns, onShowT
             return column
         })
         onSetColumns([...newColumns]);
-    };
+    }
 
     return (
-        <Root onClick={onShowTaskModal}>
+        <Root>
 
-            <Flex>
+            <Flex onClick={onShowTaskModal}>
 
                 <Text isTaskActive={isTaskActive} id={taskId}>{task}</Text>
 
                 <EditTask isTaskEditActive={isTaskEditActive} onChange={handleChangeTask} onBlur={handleTask}
                           value={taskTitle} name={task}/>
                 <FlexColumn>
+
                     <EditButton onClick={handleEditTask}>Edit</EditButton>
 
                     <DeleteTaskButton onClick={handleDeleteTask}/>
+
                 </FlexColumn>
+
             </Flex>
 
             <Comments>
+
                 Comments:
                 {columns[columns.findIndex(column => column.id === columnId)].toDoList[columns[columns.findIndex(column => column.id === columnId)].toDoList.findIndex(toDo => toDo.id === taskId)].comments.length}
+
             </Comments>
 
         </Root>

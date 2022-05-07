@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState, useCallback} from "react";
 import {Column, Login, Modal, TaskModal} from './components';
 import {ToDoList, ColumnInterface} from "./interfaces";
 import styled from "styled-components";
@@ -23,18 +23,18 @@ const App: React.FC = () => {
     const [showedToDoElement, setShowedToDoElement] = useState<ToDoList>()
     const [showedColumnTitle, setShowedColumnTitle] = useState<string>('')
 
-    const handleChange = ({target}: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = useCallback((({target}: React.ChangeEvent<HTMLInputElement>) => {
         setColumnTitle(target.value)
-    };
+    }), []);
 
     const handleCreateColumn = () => {
         if (columnTitle) {
             setColumns([...columns, {id: uuidv4(), title: columnTitle, toDoList: []}])
             setColumnTitle('')
         }
-    };
+    }
 
-    const onShowTaskModal = ({target}: React.MouseEvent<HTMLDivElement>) => {
+    const handleShowTaskModal = useCallback((({target}: React.MouseEvent<HTMLDivElement>) => {
         setTaskModalActive(true)
         setShowedId((target as HTMLDivElement).id)
         columns.map(column => {
@@ -46,7 +46,7 @@ const App: React.FC = () => {
                 }
             })
         })
-    };
+    }), []);
 
     return (
 
@@ -72,7 +72,7 @@ const App: React.FC = () => {
                 {columns.map((el) => {
                     return (
                         <Column columns={columns} onSetColumns={setColumns} columnId={el.id} key={el.id}
-                                columnTitle={el.title} onShowTaskModal={onShowTaskModal}/>
+                                columnTitle={el.title} onShowTaskModal={handleShowTaskModal}/>
                     )
                 })}
             </Columns>

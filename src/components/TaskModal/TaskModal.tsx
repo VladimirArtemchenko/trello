@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import styled from "styled-components";
 import {v4 as uuidv4} from "uuid";
 import {ColumnInterface, TaskPopupProps} from "../../interfaces";
@@ -37,13 +37,13 @@ const TaskPopup: React.FC<TaskPopupProps> = ({
         setTitleActive(!isTitleActive)
     }
 
-    const handleChangeTitle = ({target}: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChangeTitle = useCallback((({target}: React.ChangeEvent<HTMLInputElement>) => {
         setTitle(target.value)
-    };
+    }), [])
 
     const handleTitle = () => {
         const newColumns = columns.map(column => {
-            column.toDoList.map(element => {
+                column.toDoList.map(element => {
                     if (element.id === showedId) {
                         element.title = title
                     }
@@ -84,21 +84,21 @@ const TaskPopup: React.FC<TaskPopupProps> = ({
         onSetModalActive(false);
     }
 
-    const handleChangeDescription = ({target}: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const handleChangeDescription = useCallback((({target}: React.ChangeEvent<HTMLTextAreaElement>) => {
         setDescription(target.value)
-    };
+    }), [])
 
-    const handleChangeComment = ({target}: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChangeComment = useCallback((({target}: React.ChangeEvent<HTMLInputElement>) => {
         setComment(target.value)
-    };
+    }), [])
 
     const handleDeleteButton = () => {
         const newColumns = columns.map(column => {
             column.toDoList.map(toDo => {
-                if (toDo.id===showedId){
-                    toDo.description="Введите описание"
+                if (toDo.id === showedId) {
+                    toDo.description = "Введите описание"
                 }
-                })
+            })
             return column
         })
         onSetColumns([...newColumns])
@@ -154,22 +154,30 @@ const TaskPopup: React.FC<TaskPopupProps> = ({
                     <InputDescription isDescriptionEditActive={isDescriptionEditActive} placeholder={'Введите описание'}
                                       value={description} onChange={handleChangeDescription}/>
                     <FlexColumn>
+
                         <DescriptionButton type="submit" onClick={handleDescription}>Add</DescriptionButton>
+
                         <DeleteDescriptionButton onClick={handleDeleteButton}/>
+
                     </FlexColumn>
 
                 </Flex>
 
                 <Flex>
+
                     <CommentInput type={"text"} placeholder={"Введите свой коментарий"} onChange={handleChangeComment}
                                   value={comment}/>
+
                     <CommentButton type="submit" onClick={handleComment}>Comment</CommentButton>
+
                 </Flex>
 
                 {showedToDoElement.comments.map((comment) => {
                     return (
+
                         <Comments columns={columns} onSetColumns={onSetColumns} showedId={showedId}
                                   userName={comment.userName} text={comment.text} commentId={comment.id}/>
+
                     )
                 })}
 

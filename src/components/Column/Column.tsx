@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useCallback, useState} from "react";
 import styled from "styled-components";
 import trashIcon from "../../images/trash.svg";
 import {v4 as uuidv4} from 'uuid';
@@ -13,9 +13,9 @@ const Column: React.FC<ColumnProps> = ({columnTitle, columnId, onSetColumns, col
     const [isTitleActive, setTitleActive] = useState<boolean>(true);
     const columnIndex = (columns.findIndex(element => element.id === columnId));
 
-    const handleChange = ({target}: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = useCallback((({target}: React.ChangeEvent<HTMLInputElement>) => {
         setTaskTitle(target.value)
-    };
+    }), [])
 
     const handleCreateTask = () => {
         if (taskTitle) {
@@ -39,7 +39,7 @@ const Column: React.FC<ColumnProps> = ({columnTitle, columnId, onSetColumns, col
     const handleEditColumn = () => {
         setEditActive(!isEditActive)
         setTitleActive(!isTitleActive)
-    }
+    };
 
     const handleChangeColumn = ({target}: React.ChangeEvent<HTMLInputElement>) => {
         setTitle(target.value)
@@ -50,34 +50,46 @@ const Column: React.FC<ColumnProps> = ({columnTitle, columnId, onSetColumns, col
             return column
         });
         onSetColumns([...newColumns])
-    };
+    }
 
     const handleDeleteColumnButtonClick = () => {
         const newColumns = columns.filter(column => column.id !== columnId);
         onSetColumns([...newColumns]);
-    };
+    }
 
     return (
         <Root>
+
             <Flex>
+
                 <Title isTitleActive={isTitleActive} onClick={handleEditColumn}>{columnTitle}</Title>
+
                 <EditTitle isEditActive={isEditActive} onChange={handleChangeColumn} onBlur={handleEditColumn}
                            value={title} name={columnTitle}/>
+
                 <DeleteColumnButton onClick={handleDeleteColumnButtonClick}/>
+
             </Flex>
 
             <Form>
+
                 <NewTask onChange={handleChange} value={taskTitle} name={taskTitle}/>
+
                 <NewTaskButton onClick={handleCreateTask}>Add</NewTaskButton>
+
             </Form>
 
             <div>
+
                 {columns[columnIndex].toDoList.map((toDo) => {
                     return (
+
                         <Task columnId={columnId} columns={columns} onSetColumns={onSetColumns}
                               onShowTaskModal={onShowTaskModal} task={toDo.title} taskId={toDo.id} key={toDo.id}/>
+
                     )
                 })}
+
             </div>
 
         </Root>

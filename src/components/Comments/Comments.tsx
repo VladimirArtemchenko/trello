@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useCallback, useState} from "react";
 import styled from "styled-components";
 import trashIcon from "../../images/trash.svg";
 import {CommentsProps} from "../../interfaces";
@@ -36,9 +36,9 @@ const Comments: React.FC<CommentsProps> = ({columns, onSetColumns, showedId, use
         })
     }
 
-    const handleChangeEditComment = ({target}: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChangeEditComment = useCallback((({target}: React.ChangeEvent<HTMLInputElement>) => {
         setCommentEdit(target.value)
-    }
+    }), [])
 
     const handleEditComment = () => {
         const newColumns = columns.map(column => {
@@ -61,11 +61,15 @@ const Comments: React.FC<CommentsProps> = ({columns, onSetColumns, showedId, use
 
             <Flex>
                 <Comment isCommentActive={isCommentActive}>{userName} : {text}</Comment>
+
                 <CommentEditInput isCommentEditInputActive={isCommentEditInputActive}
                                   onChange={handleChangeEditComment} onBlur={handleEditComment}
                                   value={commentEdit}/>
+
                 <EditButton onClick={handleEditButton}>Edit</EditButton>
+
                 <DeleteCommentButton onClick={handleDeleteButton}/>
+
             </Flex>
 
         </Root>
