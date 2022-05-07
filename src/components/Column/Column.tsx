@@ -1,11 +1,11 @@
 import React, {useState} from "react";
 import styled from "styled-components";
 import trashIcon from "../../images/trash.svg";
-import { v4 as uuidv4 } from 'uuid';
+import {v4 as uuidv4} from 'uuid';
 import {Task} from "../index";
 import {ColumnProps} from "../../interfaces";
 
-const Column:React.FC<ColumnProps> = ({columnTitle, columnId, onSetColumns, columns,onShowTaskModal}) => {
+const Column: React.FC<ColumnProps> = ({columnTitle, columnId, onSetColumns, columns, onShowTaskModal}) => {
 
     const [taskTitle, setTaskTitle] = useState<string>('');
     const [title, setTitle] = useState<string>(columnTitle);
@@ -21,9 +21,14 @@ const Column:React.FC<ColumnProps> = ({columnTitle, columnId, onSetColumns, colu
         if (taskTitle) {
             const newColumn = columns.map(column => {
                     if (column.id === columnId) {
-                        column.toDoList.unshift({id: uuidv4(), title: taskTitle, description: 'Введите подробное описание',  comments: []});
+                        column.toDoList.unshift({
+                            id: uuidv4(),
+                            title: taskTitle,
+                            description: 'Введите подробное описание',
+                            comments: []
+                        });
                     }
-                return column
+                    return column
                 }
             )
             onSetColumns([...newColumn]);
@@ -33,13 +38,13 @@ const Column:React.FC<ColumnProps> = ({columnTitle, columnId, onSetColumns, colu
 
     const handleEditColumn = () => {
         setEditActive(!isEditActive)
-        setTitleActive (!isTitleActive)
+        setTitleActive(!isTitleActive)
     }
 
     const handleChangeColumn = ({target}: React.ChangeEvent<HTMLInputElement>) => {
         setTitle(target.value)
         const newColumns = columns.map(column => {
-            if( column.id === columnId ){
+            if (column.id === columnId) {
                 column.title = target.value
             }
             return column
@@ -55,8 +60,9 @@ const Column:React.FC<ColumnProps> = ({columnTitle, columnId, onSetColumns, colu
     return (
         <Root>
             <Flex>
-                <Title isTitleActive={isTitleActive} onClick={handleEditColumn} >{columnTitle}</Title>
-                <EditTitle isEditActive={isEditActive} onChange={handleChangeColumn} onBlur={handleEditColumn} value={title} name={columnTitle}/>
+                <Title isTitleActive={isTitleActive} onClick={handleEditColumn}>{columnTitle}</Title>
+                <EditTitle isEditActive={isEditActive} onChange={handleChangeColumn} onBlur={handleEditColumn}
+                           value={title} name={columnTitle}/>
                 <DeleteColumnButton onClick={handleDeleteColumnButtonClick}/>
             </Flex>
 
@@ -68,7 +74,8 @@ const Column:React.FC<ColumnProps> = ({columnTitle, columnId, onSetColumns, colu
             <div>
                 {columns[columnIndex].toDoList.map((toDo) => {
                     return (
-                        <Task columnId={columnId} columns={columns} onSetColumns={onSetColumns} onShowTaskModal={onShowTaskModal} task={toDo.title} taskId={toDo.id} key={toDo.id}/>
+                        <Task columnId={columnId} columns={columns} onSetColumns={onSetColumns}
+                              onShowTaskModal={onShowTaskModal} task={toDo.title} taskId={toDo.id} key={toDo.id}/>
                     )
                 })}
             </div>
@@ -118,7 +125,7 @@ const Flex = styled.div`
   gap: 10px;
   justify-content: space-between;
 `;
-const EditTitle = styled.input<{isEditActive:boolean}>`
+const EditTitle = styled.input<{ isEditActive: boolean }>`
   width: 80%;
   text-align: center;
   font-size: 30px;

@@ -3,7 +3,7 @@ import styled from "styled-components";
 import trashIcon from "../../images/trash.svg";
 import {CommentsProps} from "../../interfaces";
 
-const Comments: React.FC<CommentsProps> = ({columns, onSetColumns, showedId, userName, text,commentId}) => {
+const Comments: React.FC<CommentsProps> = ({columns, onSetColumns, showedId, userName, text, commentId}) => {
     const [isCommentActive, setCommentActive] = useState<boolean>(true);
     const [isCommentEditInputActive, setCommentEditInputActive] = useState<boolean>(false);
     const [commentEdit, setCommentEdit] = useState<string>('');
@@ -48,9 +48,9 @@ const Comments: React.FC<CommentsProps> = ({columns, onSetColumns, showedId, use
                         comment.text = commentEdit
                     }
                 })
-                })
-            return column
             })
+            return column
+        })
         onSetColumns([...newColumns])
         setCommentActive(!isCommentActive)
         setCommentEditInputActive(!isCommentEditInputActive)

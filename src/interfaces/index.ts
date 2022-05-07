@@ -7,23 +7,27 @@ export interface ToDoList {
     description: string
     comments: Comment[]
 }
+
 export interface ColumnInterface {
     id: string
     title: string
     toDoList: ToDoList[]
 }
+
 export interface ColumnProps {
     columnTitle: string
     columnId: string
     columns: ColumnInterface[]
-    onSetColumns: (value:ColumnInterface[]) => void
-    onShowTaskModal:({ target }: React.MouseEvent<HTMLDivElement>)  => void
+    onSetColumns: (value: ColumnInterface[]) => void
+    onShowTaskModal: ({target}: React.MouseEvent<HTMLDivElement>) => void
 };
+
 export interface Comment {
-    id:string
-    userName:string
-    text:string
+    id: string
+    userName: string
+    text: string
 }
+
 export interface TaskPopupProps {
     userName: string
     onSetModalActive: (value: boolean) => void
@@ -32,30 +36,34 @@ export interface TaskPopupProps {
     showedToDoElement: ToDoList
     isActive: boolean
     showedId: string
-    showedColumnTitle:string
+    showedColumnTitle: string
 }
+
 export interface LoginProps {
     userName: string;
     onSetUserName: (value: string) => void;
     onSetModalActive: (value: boolean) => void;
-    isActive:boolean
+    isActive: boolean
 }
+
 export interface ModalProps {
     children: React.ReactNode;
 }
+
 export interface TaskProps {
     columns: ColumnInterface[]
     onSetColumns: (value: ColumnInterface[]) => void
-    columnId:string
+    columnId: string
     task: string
     taskId: string
-    onShowTaskModal:({ target }: React.MouseEvent<HTMLDivElement>)  => void
+    onShowTaskModal: ({target}: React.MouseEvent<HTMLDivElement>) => void
 };
+
 export interface CommentsProps {
     columns: ColumnInterface[]
     onSetColumns: (value: ColumnInterface[]) => void
     showedId: string
-    userName:string
-    text:string
-    commentId:string
+    userName: string
+    text: string
+    commentId: string
 };

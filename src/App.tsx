@@ -1,15 +1,15 @@
 import React, {useState} from "react";
-import {Column, Login, Modal,TaskModal} from './components';
-import {ToDoList,ColumnInterface} from "./interfaces";
+import {Column, Login, Modal, TaskModal} from './components';
+import {ToDoList, ColumnInterface} from "./interfaces";
 import styled from "styled-components";
 import {v4 as uuidv4} from "uuid";
 
 
 const initialColumnsName = [
-    {id: uuidv4(), title: 'To do',toDoList:[] as ToDoList[]},
-    {id: uuidv4(), title: 'In Progress',toDoList:[]as ToDoList[]},
-    {id: uuidv4(), title: 'Testing',toDoList:[]as ToDoList[]},
-    {id: uuidv4(), title: 'Done',toDoList:[]as ToDoList[]},
+    {id: uuidv4(), title: 'To do', toDoList: [] as ToDoList[]},
+    {id: uuidv4(), title: 'In Progress', toDoList: [] as ToDoList[]},
+    {id: uuidv4(), title: 'Testing', toDoList: [] as ToDoList[]},
+    {id: uuidv4(), title: 'Done', toDoList: [] as ToDoList[]},
 ]
 
 const App: React.FC = () => {
@@ -20,16 +20,16 @@ const App: React.FC = () => {
     const [isTaskModalActive, setTaskModalActive] = useState<boolean>(false);
     const [columns, setColumns] = useState<ColumnInterface[]>(initialColumnsName);
     const [showedId, setShowedId] = useState<string>('');
-    const [showedToDoElement, setShowedToDoElement]=useState<ToDoList>()
-    const [showedColumnTitle, setShowedColumnTitle]=useState<string>('')
+    const [showedToDoElement, setShowedToDoElement] = useState<ToDoList>()
+    const [showedColumnTitle, setShowedColumnTitle] = useState<string>('')
 
     const handleChange = ({target}: React.ChangeEvent<HTMLInputElement>) => {
         setColumnTitle(target.value)
     };
-    
+
     const handleCreateColumn = () => {
         if (columnTitle) {
-            setColumns([...columns, {id: uuidv4(), title: columnTitle,toDoList:[]}])
+            setColumns([...columns, {id: uuidv4(), title: columnTitle, toDoList: []}])
             setColumnTitle('')
         }
     };
@@ -53,11 +53,14 @@ const App: React.FC = () => {
         <Root>
 
             <Modal>
-                <Login isActive={isLoginModalActive} userName={userName} onSetUserName={setUserName} onSetModalActive={setLoginModalActive}/>
+                <Login isActive={isLoginModalActive} userName={userName} onSetUserName={setUserName}
+                       onSetModalActive={setLoginModalActive}/>
             </Modal>
 
             {showedToDoElement && <Modal>
-                <TaskModal showedId={showedId} showedColumnTitle={showedColumnTitle} isActive={isTaskModalActive}  showedToDoElement={showedToDoElement} userName={userName} onSetModalActive={setTaskModalActive} columns={columns} onSetColumns={setColumns} />
+                <TaskModal showedId={showedId} showedColumnTitle={showedColumnTitle} isActive={isTaskModalActive}
+                           showedToDoElement={showedToDoElement} userName={userName}
+                           onSetModalActive={setTaskModalActive} columns={columns} onSetColumns={setColumns}/>
             </Modal>}
 
             <NewColumn type="text" onChange={handleChange} value={columnTitle}/>
@@ -68,7 +71,8 @@ const App: React.FC = () => {
 
                 {columns.map((el) => {
                     return (
-                        <Column columns={columns} onSetColumns={setColumns} columnId={el.id} key={el.id} columnTitle={el.title} onShowTaskModal={onShowTaskModal}/>
+                        <Column columns={columns} onSetColumns={setColumns} columnId={el.id} key={el.id}
+                                columnTitle={el.title} onShowTaskModal={onShowTaskModal}/>
                     )
                 })}
             </Columns>

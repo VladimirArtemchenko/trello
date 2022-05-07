@@ -55,7 +55,7 @@ const Task: React.FC<TaskProps> = ({task, taskId, columns, onSetColumns, onShowT
 
             <Flex>
 
-                <Text isTaskActive={isTaskActive}  id={taskId}>{task}</Text>
+                <Text isTaskActive={isTaskActive} id={taskId}>{task}</Text>
 
                 <EditTask isTaskEditActive={isTaskEditActive} onChange={handleChangeTask} onBlur={handleTask}
                           value={taskTitle} name={task}/>

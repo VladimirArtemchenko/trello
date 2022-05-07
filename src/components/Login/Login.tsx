@@ -3,7 +3,7 @@ import styled from "styled-components";
 import {LoginProps} from "../../interfaces";
 
 
-const Login: React.FC<LoginProps> = ({userName, onSetUserName, onSetModalActive,isActive}) => {
+const Login: React.FC<LoginProps> = ({userName, onSetUserName, onSetModalActive, isActive}) => {
 
 
     const handleConfirm = () => {
@@ -35,7 +35,7 @@ const Login: React.FC<LoginProps> = ({userName, onSetUserName, onSetModalActive,
 
 export default Login
 
-const Root = styled.div<{ isActive:boolean }>`
+const Root = styled.div<{ isActive: boolean }>`
   position: fixed;
   width: 100vw;
   height: 100vh;
