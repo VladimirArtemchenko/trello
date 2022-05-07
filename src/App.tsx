@@ -21,6 +21,7 @@ const App: React.FC = () => {
     const [columns, setColumns] = useState<ColumnInterface[]>(initialColumnsName);
     const [showedId, setShowedId] = useState<string>('');
     const [showedToDoElement, setShowedToDoElement]=useState<ToDoList>()
+    const [showedColumnTitle, setShowedColumnTitle]=useState<string>('')
 
     const handleChange = ({target}: React.ChangeEvent<HTMLInputElement>) => {
         setColumnTitle(target.value)
@@ -36,10 +37,12 @@ const App: React.FC = () => {
     const onShowTaskModal = ({target}: React.MouseEvent<HTMLDivElement>) => {
         setTaskModalActive(true)
         setShowedId((target as HTMLDivElement).id)
-        columns.map(el => {
-            el.toDoList.map((el) => {
-                if (el.id === (target as HTMLDivElement).id) {
-                    setShowedToDoElement(el)
+        columns.map(column => {
+            const columnTitle = column.title
+            column.toDoList.map((toDo) => {
+                if (toDo.id === (target as HTMLDivElement).id) {
+                    setShowedToDoElement(toDo)
+                    setShowedColumnTitle(columnTitle)
                 }
             })
         })
@@ -54,7 +57,7 @@ const App: React.FC = () => {
             </Modal>
 
             {showedToDoElement && <Modal>
-                <TaskModal showedId={showedId} isActive={isTaskModalActive}  showedToDoElement={showedToDoElement} userName={userName} onSetModalActive={setTaskModalActive} columns={columns} onSetColumns={setColumns} />
+                <TaskModal showedId={showedId} showedColumnTitle={showedColumnTitle} isActive={isTaskModalActive}  showedToDoElement={showedToDoElement} userName={userName} onSetModalActive={setTaskModalActive} columns={columns} onSetColumns={setColumns} />
             </Modal>}
 
             <NewColumn type="text" onChange={handleChange} value={columnTitle}/>

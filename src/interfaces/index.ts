@@ -5,7 +5,7 @@ export interface ToDoList {
     id: string
     title: string
     description: string
-    comment: Comment[]
+    comments: Comment[]
 }
 export interface ColumnInterface {
     id: string
@@ -32,6 +32,7 @@ export interface TaskPopupProps {
     showedToDoElement: ToDoList
     isActive: boolean
     showedId: string
+    showedColumnTitle:string
 }
 export interface LoginProps {
     userName: string;
@@ -50,4 +51,11 @@ export interface TaskProps {
     taskId: string
     onShowTaskModal:({ target }: React.MouseEvent<HTMLDivElement>)  => void
 };
-
+export interface CommentsProps {
+    columns: ColumnInterface[]
+    onSetColumns: (value: ColumnInterface[]) => void
+    showedId: string
+    userName:string
+    text:string
+    commentId:string
+};

@@ -19,11 +19,11 @@ const Column:React.FC<ColumnProps> = ({columnTitle, columnId, onSetColumns, colu
 
     const handleCreateTask = () => {
         if (taskTitle) {
-            const newColumn = columns.map(element => {
-                    if (element.id === columnId) {
-                        element.toDoList.unshift({id: uuidv4(), title: taskTitle, description: 'Введите подробное описание',  comment: []});
+            const newColumn = columns.map(column => {
+                    if (column.id === columnId) {
+                        column.toDoList.unshift({id: uuidv4(), title: taskTitle, description: 'Введите подробное описание',  comments: []});
                     }
-                return element
+                return column
                 }
             )
             onSetColumns([...newColumn]);
@@ -38,17 +38,17 @@ const Column:React.FC<ColumnProps> = ({columnTitle, columnId, onSetColumns, colu
 
     const handleChangeColumn = ({target}: React.ChangeEvent<HTMLInputElement>) => {
         setTitle(target.value)
-        const newColumns = columns.map(element => {
-            if( element.id === columnId ){
-                element.title = target.value
+        const newColumns = columns.map(column => {
+            if( column.id === columnId ){
+                column.title = target.value
             }
-            return element
+            return column
         });
         onSetColumns([...newColumns])
     };
 
     const handleDeleteColumnButtonClick = () => {
-        const newColumns = columns.filter(element => element.id !== columnId);
+        const newColumns = columns.filter(column => column.id !== columnId);
         onSetColumns([...newColumns]);
     };
 
@@ -66,9 +66,9 @@ const Column:React.FC<ColumnProps> = ({columnTitle, columnId, onSetColumns, colu
             </Form>
 
             <div>
-                {columns[columnIndex].toDoList.map((el) => {
+                {columns[columnIndex].toDoList.map((toDo) => {
                     return (
-                        <Task columnId={columnId} columns={columns} onSetColumns={onSetColumns} onShowTaskModal={onShowTaskModal} task={el.title} taskId={el.id} key={el.id}/>
+                        <Task columnId={columnId} columns={columns} onSetColumns={onSetColumns} onShowTaskModal={onShowTaskModal} task={toDo.title} taskId={toDo.id} key={toDo.id}/>
                     )
                 })}
             </div>
@@ -82,7 +82,7 @@ export default Column
 const Root = styled.div`
   display: flex;
   flex-direction: column;
-  width: 300px;
+  width: 30%;
   box-sizing: border-box;
   margin: 20px;
 `;
@@ -91,7 +91,7 @@ const Form = styled.div`
   gap: 10px;
 `;
 const Title = styled.h1<{ isTitleActive: boolean }>`
-  width: 250px;
+  width: 80%;
   text-align: center;
   font-size: 30px;
   margin: 0 0 5px 0;
@@ -108,11 +108,10 @@ const NewTaskButton = styled.button`
   min-width: 50px;
 `;
 const NewTask = styled.input`
-  min-width: 70%;
   height: 30px;
   border: none;
   border-radius: 5px;
-  min-width: 170px;
+  min-width: 80%;
 `;
 const Flex = styled.div`
   display: flex;
@@ -120,7 +119,7 @@ const Flex = styled.div`
   justify-content: space-between;
 `;
 const EditTitle = styled.input<{isEditActive:boolean}>`
-  width: 250px;
+  width: 80%;
   text-align: center;
   font-size: 30px;
   margin: 0 0 5px 0;
@@ -131,7 +130,7 @@ const EditTitle = styled.input<{isEditActive:boolean}>`
 const DeleteColumnButton = styled.button`
   padding: 0;
   margin: 0;
-  background: center/100% url(${trashIcon});
+  background: center/100% url(${trashIcon}) no-repeat;
   font-size: 18px;
   border: none;
   border-radius: 5px;
