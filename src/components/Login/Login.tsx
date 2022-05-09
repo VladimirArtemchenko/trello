@@ -1,28 +1,33 @@
-import React, {useCallback} from "react";
+import React, {useState} from "react";
 import styled from "styled-components";
-import {LoginProps} from "../../interfaces";
 
+export interface LoginProps {
+    onSetUserName: (value: string) => void;
+}
 
-const Login: React.FC<LoginProps> = ({userName, onSetUserName, onSetModalActive, isActive}) => {
+const Login: React.FC<LoginProps> = ({onSetUserName}) => {
 
+    const [value, setValue] = useState<string>('');
 
     const handleConfirm = () => {
-        if (userName) {
-            onSetModalActive(false);
+
+        if (value) {
+            onSetUserName(value)
+            localStorage.setItem("userName", JSON.stringify(value))
         }
     }
 
-    const handleChange = useCallback((({target}: React.ChangeEvent<HTMLInputElement>) => {
-        onSetUserName(target.value)
-    }), [])
+    const handleChange = ({target}: React.ChangeEvent<HTMLInputElement>) => {
+        setValue(target.value)
+    }
 
     return (
 
-        <Root isActive={isActive}>
+        <Root>
 
             <Container>
 
-                <Name type="text" onChange={handleChange} value={userName} placeholder={'Введите свое имя?'}/>
+                <Name type="text" onChange={handleChange} value={value} placeholder={'Введите свое имя?'}/>
 
                 <ConfirmButton type="button" onClick={handleConfirm}>Confirm</ConfirmButton>
 
@@ -35,14 +40,13 @@ const Login: React.FC<LoginProps> = ({userName, onSetUserName, onSetModalActive,
 
 export default Login
 
-const Root = styled.div<{ isActive: boolean }>`
+const Root = styled.div`
   position: fixed;
   width: 100vw;
   height: 100vh;
   left: 0;
   top: 0;
   background: rgba(0, 0, 0, 0.4);
-  visibility: ${props => props.isActive ? "visible" : "hidden"};
   display: flex;
   justify-content: center;
   align-items: center;

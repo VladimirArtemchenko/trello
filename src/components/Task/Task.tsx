@@ -1,80 +1,150 @@
-import React, {useCallback, useState} from "react";
+import React, {useState} from "react";
 import styled from "styled-components";
 import trashIcon from "../../images/trash.svg";
-import {TaskProps} from "../../interfaces";
+import {cardType, CommentType} from "../../interfaces";
+import {Modal, TaskModal} from "../index";
 
-const Task: React.FC<TaskProps> = ({task, taskId, columns, onSetColumns, onShowTaskModal, columnId}) => {
+export interface TaskProps {
+    todoList: cardType[]
+    onSetTodoList: (value: cardType[]) => void
+    columnId: string
+    columnTitle: string
+    todoText: string
+    cardId: string
+    userName: string
+    todoDescription: string
+    comments: CommentType[]
+    onSetComments: (value: CommentType[]) => void
+    saveTodoList: (value: cardType[]) => void
+};
 
-    const [taskTitle, setValueTask] = useState<string>(task);
-    const [isTaskEditActive, setTaskEditActive] = useState<boolean>(false);
+const Task: React.FC<TaskProps> = ({
+                                       userName,
+                                       todoText,
+                                       cardId,
+                                       todoList,
+                                       onSetTodoList,
+                                       columnTitle,
+                                       todoDescription,
+                                       comments,
+                                       onSetComments,
+                                       saveTodoList
+                                   }) => {
+
+    const [taskTitle, setValueTask] = useState<string>(todoText);
+    const [value, setValue] = useState<string>('');
     const [isTaskActive, setTaskActive] = useState<boolean>(true);
+    const [isTaskModalActive, setTaskModalActive] = useState<boolean>(false);
+    const [commentCount, setCommentCount] = useState<number>(0)
 
-    const handleEditTask = () => {
-        columns.map(column => {
-            column.toDoList.map((toDo) => {
-                if (toDo.id === taskId) {
-                    setValueTask(toDo.title)
-                }
-            })
-        })
-        setTaskActive(!isTaskActive)
-        setTaskEditActive(!isTaskEditActive)
+
+    const handleEditMode = () => {
+        setValue(todoText)
+        setTaskActive(false)
     }
 
-    const handleChangeTask = useCallback((({target}: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChangeTask = ({target}: React.ChangeEvent<HTMLInputElement>) => {
         setValueTask(target.value)
-    }), [])
+        setValue(target.value)
+    }
 
-    const handleTask = () => {
-        const newColumns = columns.map(column => {
-                column.toDoList.map(toDo => {
-                    if (toDo.id === taskId) {
-                        toDo.title = taskTitle
-                    }
-                })
-                return column
+    const handleSaveTask = () => {
+        const newTodoList = todoList.map(todo => {
+
+            if (todo.id === cardId) {
+                todo.text = taskTitle
             }
-        )
-        onSetColumns([...newColumns])
-        setTaskActive(!isTaskActive)
-        setTaskEditActive(!isTaskEditActive)
+            return todo
+        })
+
+        onSetTodoList([...newTodoList])
+        setTaskActive(true)
+    }
+
+    saveTodoList(todoList)
+
+    const handleCanceled = () => {
+        setTaskActive(true)
     }
 
     const handleDeleteTask = () => {
-        const newColumns = columns.map(column => {
-            if (column.id === columnId) {
-                column.toDoList.splice(column.toDoList.findIndex(toDo => toDo.id === taskId), 1);
-            }
-            return column
-        })
-        onSetColumns([...newColumns]);
+        const newTodoList = todoList.filter(todo => todo.id !== cardId);
+        onSetTodoList([...newTodoList]);
+    }
+
+    saveTodoList(todoList)
+
+    const handleShowTaskModal = ({target}: React.MouseEvent<HTMLDivElement>) => {
+        setTaskModalActive(true)
     }
 
     return (
+
         <Root>
 
-            <Flex onClick={onShowTaskModal}>
+            <Flex>
 
-                <Text isTaskActive={isTaskActive} id={taskId}>{task}</Text>
+                {isTaskActive
+                    ? <Text id={cardId} onClick={handleShowTaskModal}>{todoText}</Text>
 
-                <EditTask isTaskEditActive={isTaskEditActive} onChange={handleChangeTask} onBlur={handleTask}
-                          value={taskTitle} name={task}/>
+                    : <EditTask onChange={handleChangeTask}
+                                value={value} name={todoText}/>
+                }
+
                 <FlexColumn>
 
-                    <EditButton onClick={handleEditTask}>Edit</EditButton>
+                    {isTaskActive
+                        ? <Container>
 
-                    <DeleteTaskButton onClick={handleDeleteTask}/>
+                            <EditButton onClick={handleEditMode}>Edit</EditButton>
+
+                            <DeleteTaskButton onClick={handleDeleteTask}/>
+
+                        </Container>
+
+                        : <Container>
+
+                            <SaveButton onClick={handleSaveTask}>Save</SaveButton>
+
+                            <CancelButton onClick={handleCanceled}>Cancel</CancelButton>
+
+                        </Container>
+                    }
+
 
                 </FlexColumn>
 
             </Flex>
 
-            <Comments>
+            {todoList.map((todo) => {
 
-                Comments:
-                {columns[columns.findIndex(column => column.id === columnId)].toDoList[columns[columns.findIndex(column => column.id === columnId)].toDoList.findIndex(toDo => toDo.id === taskId)].comments.length}
+                if (todo.id === cardId) {
+                    return (
+                        <Comments>Comments:{todo.commentsCount}</Comments>
+                    )
+                }
+            })}
 
-            </Comments>
+            {isTaskModalActive
+
+                && <Modal>
+
+                    <TaskModal comments={comments}
+                               onSetComments={onSetComments}
+                               cardId={cardId}
+                               columnTitle={columnTitle}
+                               todoText={todoText}
+                               todoDescription={todoDescription}
+                               userName={userName}
+                               onSetModalActive={setTaskModalActive}
+                               todoList={todoList}
+                               onSetTodoList={onSetTodoList}
+                               onSetCommentCount={setCommentCount}
+                               commentCount={commentCount}
+                               saveTodoList={saveTodoList}
+                    />
+
+                </Modal>}
 
         </Root>
     )
@@ -83,22 +153,25 @@ const Task: React.FC<TaskProps> = ({task, taskId, columns, onSetColumns, onShowT
 export default Task
 
 const Root = styled.div`
+  width: 300px;
+  box-sizing: border-box;
   border: solid 1px gray;
   border-radius: 10px;
   margin-top: 10px;
 `;
-const Text = styled.p<{ isTaskActive: boolean }>`
-  width: 60%;
+const Text = styled.p`
+  width: 70%;
   font-size: 18px;
   word-wrap: break-word;
   margin: 5px 0 0 0;
-  display: ${props => props.isTaskActive ? "block" : "none"};
+  cursor: pointer;
 `;
 const Comments = styled.p`
   width: 100%;
   font-size: 18px;
   word-wrap: break-word;
   margin: 5px 0 0 0;
+  cursor: default;
 
 `;
 const Flex = styled.div`
@@ -108,35 +181,61 @@ const Flex = styled.div`
 `;
 const FlexColumn = styled.div`
   display: flex;
+  width: 20%;
   flex-direction: column;
   gap: 10px;
   justify-content: center;
   align-items: center;
 `;
-const EditTask = styled.input<{ isTaskEditActive: boolean }>`
-  width: 60%;
+const EditTask = styled.input`
+  width: 70%;
+  height: 50px;
   font-size: 18px;
   word-wrap: break-word;
+  w;
   margin: 5px 0 0 0;
   padding: 0;
-  display: ${props => props.isTaskEditActive ? "block" : "none"};
 `;
 const DeleteTaskButton = styled.button`
   padding: 0;
   margin: 5px;
   background: center/100% url(${trashIcon}) no-repeat;
-  font-size: 18px;
+  font-size: 14px;
   border: none;
   border-radius: 5px;
-  width: 30px;
-  height: 30px;
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
 `;
 const EditButton = styled.button`
   padding: 0;
   margin: 5px;
-  font-size: 18px;
+  font-size: 14px;
   border: none;
   border-radius: 5px;
   width: 50px;
   height: 30px;
+  cursor: pointer;
+`;
+const SaveButton = styled.button`
+  padding: 0;
+  margin: 5px;
+  font-size: 14px;
+  border: none;
+  border-radius: 5px;
+  width: 50px;
+  height: 30px;
+  cursor: pointer;
+`;
+const CancelButton = styled.button`
+  padding: 0;
+  margin: 5px;
+  font-size: 14px;
+  border: none;
+  border-radius: 5px;
+  width: 50px;
+  height: 30px;
+  cursor: pointer;
+`;
+const Container = styled.div`
 `;

@@ -1,6 +1,9 @@
 import React from "react";
 import styled from "styled-components";
-import {ModalProps} from "../../interfaces";
+
+export interface ModalProps {
+    children: React.ReactNode;
+}
 
 const Modal: React.FC<ModalProps> = ({children}) => {
 

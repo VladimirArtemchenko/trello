@@ -1,81 +1,134 @@
-import React, {useState, useCallback} from "react";
-import {Column, Login, Modal, TaskModal} from './components';
-import {ToDoList, ColumnInterface} from "./interfaces";
+import React, {useState} from "react";
+import {Column, Login, Modal} from './components';
+import {ColumnInterface, cardType, CommentType,Json} from "./interfaces";
 import styled from "styled-components";
 import {v4 as uuidv4} from "uuid";
 
-
 const initialColumnsName = [
-    {id: uuidv4(), title: 'To do', toDoList: [] as ToDoList[]},
-    {id: uuidv4(), title: 'In Progress', toDoList: [] as ToDoList[]},
-    {id: uuidv4(), title: 'Testing', toDoList: [] as ToDoList[]},
-    {id: uuidv4(), title: 'Done', toDoList: [] as ToDoList[]},
+    {id: uuidv4(), columnName: 'To do'},
+    {id: uuidv4(), columnName: 'In Progress'},
+    {id: uuidv4(), columnName: 'Testing'},
+    {id: uuidv4(), columnName: 'Done'},
 ]
 
 const App: React.FC = () => {
 
-    const [userName, setUserName] = useState<string>('');
-    const [columnTitle, setColumnTitle] = useState<string>('');
-    const [isLoginModalActive, setLoginModalActive] = useState<boolean>(true);
-    const [isTaskModalActive, setTaskModalActive] = useState<boolean>(false);
-    const [columns, setColumns] = useState<ColumnInterface[]>(initialColumnsName);
-    const [showedId, setShowedId] = useState<string>('');
-    const [showedToDoElement, setShowedToDoElement] = useState<ToDoList>()
-    const [showedColumnTitle, setShowedColumnTitle] = useState<string>('')
+    const columnWidth = 300
 
-    const handleChange = useCallback((({target}: React.ChangeEvent<HTMLInputElement>) => {
+    const initialUserName = () => {
+        const localUserName= localStorage.getItem("userName")??''
+        if (localStorage.getItem("userName")){
+            const localUserNameObj = JSON.parse(localUserName)
+            return localUserNameObj
+        }else {
+            return ''
+        }
+    }
+
+    const initialColumn = () => {
+        const localColumns = localStorage.getItem("columns") ?? ''
+        if (localColumns) {
+            const localColumnsObj = JSON.parse(localColumns)
+            return localColumnsObj
+        } else {
+            localStorage.setItem("columns", JSON.stringify([...initialColumnsName]))
+            return initialColumnsName
+        }
+    }
+
+    const initialTodoList = () => {
+
+        const localTodoList: any = localStorage.getItem("todoList")??''
+        if (localTodoList) {
+            const localTodoListObj = JSON.parse(localTodoList)
+            return localTodoListObj
+        } else {
+            return []
+        }
+    }
+
+    const initialComments = () => {
+        const localComments: any = localStorage.getItem("comments")??''
+        if (localComments) {
+            const localCommentsObj = JSON.parse(localComments)
+            return localCommentsObj
+        } else {
+            return []
+        }
+    }
+
+    const saveColumns = (object: ColumnInterface[]) => {
+        localStorage.setItem("columns", JSON.stringify([...object]))
+    }
+    const saveTodoList = (object: cardType[]) => {
+        localStorage.setItem("todoList", JSON.stringify([...object]))
+    }
+
+    const [userName, setUserName] = useState<string>(initialUserName);
+    const [columns, setColumns] = useState<ColumnInterface[]>(initialColumn);
+    const [todoList, setTodoList] = useState<cardType[]>(initialTodoList);
+    const [comments, setComments] = useState<CommentType[]>(initialComments);
+    const [columnTitle, setColumnTitle] = useState<string>('');
+    const columnsWidth: string = `${(columnWidth + 20) * columns.length}px`;
+
+    const handleChange = ({target}: React.ChangeEvent<HTMLInputElement>) => {
         setColumnTitle(target.value)
-    }), []);
+    }
 
     const handleCreateColumn = () => {
         if (columnTitle) {
-            setColumns([...columns, {id: uuidv4(), title: columnTitle, toDoList: []}])
+            setColumns([...columns, {id: uuidv4(), columnName: columnTitle}])
             setColumnTitle('')
         }
     }
 
-    const handleShowTaskModal = useCallback((({target}: React.MouseEvent<HTMLDivElement>) => {
-        setTaskModalActive(true)
-        setShowedId((target as HTMLDivElement).id)
-        columns.map(column => {
-            const columnTitle = column.title
-            column.toDoList.map((toDo) => {
-                if (toDo.id === (target as HTMLDivElement).id) {
-                    setShowedToDoElement(toDo)
-                    setShowedColumnTitle(columnTitle)
-                }
-            })
-        })
-    }), []);
+    saveColumns(columns)
 
     return (
 
         <Root>
 
-            <Modal>
-                <Login isActive={isLoginModalActive} userName={userName} onSetUserName={setUserName}
-                       onSetModalActive={setLoginModalActive}/>
-            </Modal>
+            {userName
 
-            {showedToDoElement && <Modal>
-                <TaskModal showedId={showedId} showedColumnTitle={showedColumnTitle} isActive={isTaskModalActive}
-                           showedToDoElement={showedToDoElement} userName={userName}
-                           onSetModalActive={setTaskModalActive} columns={columns} onSetColumns={setColumns}/>
-            </Modal>}
+                ? <div>
 
-            <NewColumn type="text" onChange={handleChange} value={columnTitle}/>
+                    <CentredFlex>
 
-            <NewColumnButton onClick={handleCreateColumn}>Add Board</NewColumnButton>
+                        <NewColumn type="text" onChange={handleChange} value={columnTitle}/>
+                        <NewColumnButton onClick={handleCreateColumn}>Add Board</NewColumnButton>
 
-            <Columns>
+                    </CentredFlex>
 
-                {columns.map((el) => {
-                    return (
-                        <Column columns={columns} onSetColumns={setColumns} columnId={el.id} key={el.id}
-                                columnTitle={el.title} onShowTaskModal={handleShowTaskModal}/>
-                    )
-                })}
-            </Columns>
+                    <Columns columnsWidth={columnsWidth}>
+
+                        {columns.map((column) => {
+
+                            return (
+                                <Column userName={userName}
+                                        columns={columns}
+                                        onSetColumns={setColumns}
+                                        columnId={column.id}
+                                        key={column.id}
+                                        columnTitle={column.columnName}
+                                        onSetTodoList={setTodoList}
+                                        todoList={todoList}
+                                        comments={comments}
+                                        onSetComments={setComments}
+                                        saveColumns={saveColumns}
+                                        saveTodoList={saveTodoList}
+
+                                />
+                            )
+                        })}
+
+                    </Columns>
+
+                </div>
+
+                : <Modal>
+                    <Login onSetUserName={setUserName}/>
+                </Modal>
+            }
 
         </Root>
     )
@@ -83,31 +136,38 @@ const App: React.FC = () => {
 
 export default App
 
-const Columns = styled.div`
+const Root = styled.div`
+  padding: 20px;
   display: flex;
-  width: 90%;
+  flex-direction: column;
+`;
+const Columns = styled.div<{ columnsWidth: string }>`
+  display: flex;
+  width: ${props => props.columnsWidth};
   box-sizing: border-box;
-  margin: 20px;
+  gap: 20px;
 `;
 const NewColumn = styled.input`
   width: 400px;
   height: 30px;
   border: none;
-  border-radius: 5px;
+  border-radius: 10px;
 `;
-const Root = styled.div`
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  width: 90%;
-  align-items: center;
-`;
+
 const NewColumnButton = styled.button`
   font-size: 18px;
   border: none;
-  border-radius: 5px;
+  border-radius: 10px;
   background: white;
   width: 150px;
   height: 30px;
   margin-top: 20px;
+  cursor: pointer;
 `;
+const CentredFlex = styled.div`
+  flex-direction: column;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+`

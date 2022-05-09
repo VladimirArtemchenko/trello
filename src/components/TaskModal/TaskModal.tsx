@@ -1,80 +1,102 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import styled from "styled-components";
 import {v4 as uuidv4} from "uuid";
-import {ColumnInterface, TaskPopupProps} from "../../interfaces";
+import {cardType, CommentType} from "../../interfaces";
 import trashIcon from "../../images/trash.svg";
 import {Comments} from "../index";
+
+export interface TaskPopupProps {
+    userName: string
+    onSetModalActive: (value: boolean) => void
+    todoDescription: string
+    columnTitle: string
+    cardId: string
+    todoText: string
+    todoList: cardType[]
+    onSetTodoList: (value: cardType[]) => void
+    comments: CommentType[]
+    onSetComments: (value: CommentType[]) => void
+    onSetCommentCount: (value: number) => void
+    commentCount: number
+    saveTodoList: (value: cardType[]) => void
+}
 
 const TaskPopup: React.FC<TaskPopupProps> = ({
                                                  userName,
                                                  onSetModalActive,
-                                                 columns,
-                                                 onSetColumns,
-                                                 showedToDoElement,
-                                                 isActive,
-                                                 showedId,
-                                                 showedColumnTitle
+                                                 todoDescription,
+                                                 columnTitle,
+                                                 cardId,
+                                                 todoText,
+                                                 todoList,
+                                                 onSetTodoList,
+                                                 comments,
+                                                 onSetComments,
+                                                 onSetCommentCount,
+                                                 commentCount,
+                                                 saveTodoList
                                              }) => {
 
-    const [description, setDescription] = useState<string>('');
-    const [title, setTitle] = useState<string>('');
-    const [comment, setComment] = useState<string>('');
-    const [isDescriptionEditActive, setDescriptionEditActive] = useState<boolean>(false);
-    const [isDescriptionActive, setDescriptionActive] = useState<boolean>(true);
-    const [isTitleActive, setTitleActive] = useState<boolean>(true);
-    const [isInputTitleActive, setInputTitleActive] = useState<boolean>(false);
+    const height: string = `${window.innerHeight}px`;
+    const maxHeightModalTask: number = commentCount * 50
 
+    const [title, setTitle] = useState<string>('');
+    const [description, setDescription] = useState<string>(todoDescription);
+    const [comment, setComment] = useState<string>('');
+    const [inputCommentValue, setInputCommentValue] = useState<string>('');
+    const [isDescriptionEditMode, setDescriptionEditMode] = useState<boolean>(false);
+    const [isTitleEditMode, setTitleEditMode] = useState<boolean>(false);
+
+
+    const saveComments = (object: CommentType[]) => {
+        localStorage.setItem("comments", JSON.stringify([...object]))
+    }
 
     const handleEditTitle = () => {
-        columns.map(column => {
-            column.toDoList.map((el) => {
-                if (el.id === showedId) {
-                    setTitle(el.title)
-                }
-            })
+
+        todoList.map((todo) => {
+
+            if (todo.id === cardId) {
+                setTitle(todo.text)
+            }
         })
-        setInputTitleActive(!isInputTitleActive)
-        setTitleActive(!isTitleActive)
+        setTitleEditMode(!isTitleEditMode)
     }
 
-    const handleChangeTitle = useCallback((({target}: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChangeTitle = ({target}: React.ChangeEvent<HTMLInputElement>) => {
         setTitle(target.value)
-    }), [])
+    }
 
     const handleTitle = () => {
-        const newColumns = columns.map(column => {
-                column.toDoList.map(element => {
-                    if (element.id === showedId) {
-                        element.title = title
-                    }
-                })
-                return column
+
+        const newTodoList = todoList.map(todo => {
+
+            if (todo.id === cardId) {
+                todo.text = title
             }
-        )
-        onSetColumns([...newColumns])
-        setInputTitleActive(!isInputTitleActive)
-        setTitleActive(!isTitleActive)
+            return todo
+        })
+
+        onSetTodoList([...newTodoList])
+        setTitleEditMode(!isTitleEditMode)
     }
 
+    saveTodoList(todoList)
+
     const handleEditDescription = () => {
-        columns.map(column => {
-            column.toDoList.map((el) => {
-                if (el.id === showedId) {
-                    setDescription(el.description)
-                }
-            })
-        })
-        setDescriptionEditActive(!isDescriptionEditActive)
-        setDescriptionActive(!isDescriptionActive)
+        setDescriptionEditMode(!isDescriptionEditMode)
     }
 
     useEffect(() => {
         const handleEsc = (event: { keyCode: number; }) => {
+
             if (event.keyCode === 27) {
                 handleCloseModal()
             }
         };
+
         window.addEventListener('keydown', handleEsc);
+
         return () => {
             window.removeEventListener('keydown', handleEsc);
         };
@@ -84,102 +106,169 @@ const TaskPopup: React.FC<TaskPopupProps> = ({
         onSetModalActive(false);
     }
 
-    const handleChangeDescription = useCallback((({target}: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const handleChangeDescription = ({target}: React.ChangeEvent<HTMLTextAreaElement>) => {
         setDescription(target.value)
-    }), [])
-
-    const handleChangeComment = useCallback((({target}: React.ChangeEvent<HTMLInputElement>) => {
-        setComment(target.value)
-    }), [])
-
-    const handleDeleteButton = () => {
-        const newColumns = columns.map(column => {
-            column.toDoList.map(toDo => {
-                if (toDo.id === showedId) {
-                    toDo.description = "Введите описание"
-                }
-            })
-            return column
-        })
-        onSetColumns([...newColumns])
     }
 
+    const handleChangeComment = ({target}: React.ChangeEvent<HTMLInputElement>) => {
+        setComment(target.value)
+        setInputCommentValue(target.value)
+    }
+
+    const handleDeleteButton = () => {
+
+        const newTodoList = todoList.map(todo => {
+
+            if (todo.id === cardId) {
+                todo.description = "Введите подробное описание"
+            }
+            return todo
+        })
+        setDescription('Введите подробное описание')
+        onSetTodoList([...newTodoList])
+
+    }
+
+    saveTodoList(todoList)
+
     const handleDescription = () => {
-        const newColumns = columns.map(column => {
-            column.toDoList.map((toDo) => {
-                if (toDo.id === showedId) {
-                    if (description === '') {
-                        toDo.description = 'Введите описание'
-                    } else {
-                        toDo.description = description
-                    }
+
+        const newTodoList = todoList.map((todo) => {
+
+            if (todo.id === cardId) {
+
+                if (description === '') {
+                    todo.description = 'Введите подробное описание'
+                } else {
+                    todo.description = description
+                }
+
+            }
+
+            return todo
+
+        })
+
+        onSetTodoList([...newTodoList])
+        handleEditDescription()
+
+    }
+
+    saveTodoList(todoList)
+
+    const handleAddComment = () => {
+        let commentsCount = 0
+
+        if (comment) {
+            onSetComments([{id: uuidv4(), commentText: comment, cardId: cardId}, ...comments]);
+            comments.map((comment) => {
+                if (comment.cardId === cardId) {
+                    commentsCount = commentsCount + 1
                 }
             })
-            return column
-        })
-        onSetColumns([...newColumns])
+
+            const newTodoList = todoList.map((todo) => {
+                if (todo.id === cardId) {
+                    todo.commentsCount = commentsCount + 1
+                }
+                return todo
+            })
+            onSetCommentCount(commentsCount)
+            onSetTodoList([...newTodoList])
+            setComment('');
+        }
+    }
+
+    saveComments(comments)
+    saveTodoList(todoList)
+
+    const cancelCommentEdit = () => {
+        setInputCommentValue('')
+    }
+
+    const cancelDescriptionEdit = () => {
+        setDescription(todoDescription)
         handleEditDescription()
     }
 
-    const handleComment = () => {
-        const newColumns = columns.map(column => {
-            column.toDoList.map((toDo) => {
-                if (toDo.id === showedId) {
-                    toDo.comments.unshift({id: uuidv4(), userName: userName, text: comment})
-                }
-            })
-            return column
-        })
-        onSetColumns([...newColumns])
-        setComment("")
-    }
-
     return (
-        <Root isActive={isActive} onClick={handleCloseModal}>
+        <Root height={height} onClick={handleCloseModal}>
 
-            <Container onClick={(e) => e.stopPropagation()}>
+            <Container onClick={event => event.stopPropagation()}>
 
-                <Title isTitleActive={isTitleActive} onClick={handleEditTitle}>{showedToDoElement.title} в
-                    колонке {showedColumnTitle}</Title>
+                {isTitleEditMode
 
-                <InputTitle isInputTitleActive={isInputTitleActive} value={title} onChange={handleChangeTitle}
-                            onBlur={handleTitle}/>
+                    ? <InputTitle value={title} onChange={handleChangeTitle}
+                                  onBlur={handleTitle}/>
+
+                    : <Title onClick={handleEditTitle}>{todoText}</Title>
+                }
+
+                <Text>колонке {columnTitle}</Text>
 
                 <Text>Описание</Text>
 
                 <Flex>
-                    <Description isDescriptionActive={isDescriptionActive}
-                                 onClick={handleEditDescription}>{showedToDoElement.description}</Description>
 
-                    <InputDescription isDescriptionEditActive={isDescriptionEditActive} placeholder={'Введите описание'}
-                                      value={description} onChange={handleChangeDescription}/>
+                    {isDescriptionEditMode
+
+                        ? <InputDescription placeholder={description} value={description}
+                                            onChange={handleChangeDescription}/>
+
+                        : <Description onClick={handleEditDescription}>{todoDescription}</Description>
+                    }
+
                     <FlexColumn>
 
-                        <DescriptionButton type="submit" onClick={handleDescription}>Add</DescriptionButton>
+                        <EditButton type="submit" onClick={handleDescription}>Add</EditButton>
 
-                        <DeleteDescriptionButton onClick={handleDeleteButton}/>
+                        {isDescriptionEditMode
+
+                            ? <CancelButton type="button" onClick={cancelDescriptionEdit}>Cancel</CancelButton>
+
+                            : <DeleteDescriptionButton onClick={handleDeleteButton}/>
+                        }
 
                     </FlexColumn>
+
 
                 </Flex>
 
                 <Flex>
 
                     <CommentInput type={"text"} placeholder={"Введите свой коментарий"} onChange={handleChangeComment}
-                                  value={comment}/>
+                                  value={inputCommentValue} onBlur={cancelCommentEdit}/>
 
-                    <CommentButton type="submit" onClick={handleComment}>Comment</CommentButton>
+                    <CommentButton type="submit" onClick={handleAddComment}>Comment</CommentButton>
 
                 </Flex>
 
-                {showedToDoElement.comments.map((comment) => {
-                    return (
+                <CommentsContainer maxHeightModalTask={maxHeightModalTask}>
 
-                        <Comments columns={columns} onSetColumns={onSetColumns} showedId={showedId}
-                                  userName={comment.userName} text={comment.text} commentId={comment.id}/>
+                    {comments.map((comment) => {
 
-                    )
-                })}
+                        if (comment.cardId === cardId) {
+
+                            return (
+                                <Comments cardId={cardId}
+                                          userName={userName}
+                                          commentText={comment.commentText}
+                                          commentId={comment.id}
+                                          comments={comments}
+                                          onSetComments={onSetComments}
+                                          commentCount={commentCount}
+                                          onSetCommentCount={onSetCommentCount}
+                                          todoList={todoList}
+                                          onSetTodoList={onSetTodoList}
+                                          saveTodoList={saveTodoList}
+                                          saveComments={saveComments}
+                                />
+                            )
+                        }
+                    })}
+
+                </CommentsContainer>
+
 
                 <ConfirmButton type="button" onClick={handleCloseModal}>Confirm</ConfirmButton>
 
@@ -191,14 +280,13 @@ const TaskPopup: React.FC<TaskPopupProps> = ({
 
 export default TaskPopup
 
-const Root = styled.div<{ isActive: boolean }>`
+const Root = styled.div<{ height: string }>`
   position: fixed;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  min-height: ${props => props.height};
   left: 0;
   top: 0;
   background: rgba(0, 0, 0, 0.4);
-  visibility: ${props => props.isActive ? "visible" : "hidden"};
   display: flex;
   justify-content: center;
   align-items: center;
@@ -209,9 +297,10 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   width: 60%;
-  min-height: 50%;
+  height: 700px;
   background: white;
   border-radius: 20px;
+  margin: 50px;
 `;
 const ConfirmButton = styled.button`
   font-size: 18px;
@@ -220,74 +309,69 @@ const ConfirmButton = styled.button`
   background: white;
   height: 30px;
   margin-top: 20px;
+  cursor: pointer;
 `;
 
-const Title = styled.h1<{ isTitleActive: boolean }>`
+const Title = styled.h1`
+  width: 80%;
   text-align: center;
   font-size: 30px;
-  margin: 50px;
-  display: ${props => props.isTitleActive ? "block" : "none"};
+  margin-top: 50px;
+  word-wrap: break-word;
+  cursor: pointer;
+
 `;
-const InputTitle = styled.input<{ isInputTitleActive: boolean }>`
+const InputTitle = styled.input`
   text-align: center;
   font-size: 30px;
-  margin: 50px;
-  display: ${props => props.isInputTitleActive ? "block" : "none"};
+  margin-top: 50px;
 `;
 const Text = styled.h2`
   text-align: center;
   font-size: 24px;
   margin-top: 10px;
 `;
-const Description = styled.p<{ isDescriptionActive: boolean }>`
+const Description = styled.p`
   resize: none;
   font-size: 18px;
   margin: 10px;
-  width: 60%;
+  width: 90%;
   min-height: 50px;
   word-wrap: break-word;
-  display: ${props => props.isDescriptionActive ? "block" : "none"};
+  cursor: pointer;
+
 `;
-const InputDescription = styled.textarea<{ isDescriptionEditActive: boolean }>`
+const InputDescription = styled.textarea`
   resize: none;
   font-size: 18px;
   margin: 10px;
-  width: 60%;
-  min-height: 200px;
+  width: 90%;
+  min-height: 50px;
   word-wrap: break-word;
-  display: ${props => props.isDescriptionEditActive ? "block" : "none"};
 `;
 const CommentInput = styled.input`
   text-align: center;
   font-size: 18px;
   margin-top: 10px;
-  width: 90%;
+  width: 100%;
 `;
 const CommentButton = styled.button`
   padding: 0;
-  margin: 5px;
   font-size: 18px;
   border: none;
   border-radius: 5px;
   width: 80px;
   height: 30px;
+  cursor: pointer;
 `;
 const Flex = styled.div`
+  margin-top: 20px;
   width: 70%;
   display: flex;
   gap: 10px;
-  justify-content: space-between;
+  align-items: center;
 `;
 
-const DescriptionButton = styled.button`
-  padding: 0;
-  margin: 5px;
-  font-size: 18px;
-  border: none;
-  border-radius: 5px;
-  width: 80px;
-  height: 30px;
-`;
 const FlexColumn = styled.div`
   display: flex;
   flex-direction: column;
@@ -304,4 +388,30 @@ const DeleteDescriptionButton = styled.button`
   border-radius: 5px;
   width: 30px;
   height: 30px;
+  cursor: pointer;
+`;
+const EditButton = styled.button`
+  padding: 0;
+  margin: 5px;
+  font-size: 14px;
+  border: none;
+  border-radius: 5px;
+  width: 50px;
+  height: 30px;
+  cursor: pointer;
+`;
+const CancelButton = styled.button`
+  padding: 0;
+  margin: 5px;
+  font-size: 14px;
+  border: none;
+  border-radius: 5px;
+  width: 50px;
+  height: 30px;
+  cursor: pointer;
+`;
+const CommentsContainer = styled.div<{ maxHeightModalTask: number }>`
+  overflow-y: ${props => props.maxHeightModalTask > 300 ? "scroll" : "auto"};
+  width: 100%;
+  height: 300px;
 `;

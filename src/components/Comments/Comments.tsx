@@ -1,74 +1,137 @@
-import React, {useCallback, useState} from "react";
+import React, {useState} from "react";
 import styled from "styled-components";
 import trashIcon from "../../images/trash.svg";
-import {CommentsProps} from "../../interfaces";
+import {CommentType, cardType} from "../../interfaces";
 
-const Comments: React.FC<CommentsProps> = ({columns, onSetColumns, showedId, userName, text, commentId}) => {
-    const [isCommentActive, setCommentActive] = useState<boolean>(true);
-    const [isCommentEditInputActive, setCommentEditInputActive] = useState<boolean>(false);
-    const [commentEdit, setCommentEdit] = useState<string>('');
+export interface CommentsProps {
+    cardId: string
+    userName: string
+    commentText: string
+    commentId: string
+    comments: CommentType[]
+    onSetComments: (value: CommentType[]) => void
+    commentCount: number
+    onSetCommentCount: (value: number) => void
+    todoList: cardType[]
+    onSetTodoList: (value: cardType[]) => void
+    saveTodoList: (value: cardType[]) => void
+    saveComments: (value: CommentType[]) => void
+};
+
+const Comments: React.FC<CommentsProps> = ({
+                                               cardId,
+                                               userName,
+                                               commentText,
+                                               commentId,
+                                               comments,
+                                               onSetComments,
+                                               commentCount,
+                                               onSetCommentCount,
+                                               todoList,
+                                               onSetTodoList,
+                                               saveTodoList,
+                                               saveComments
+                                           }) => {
+
+    const [isCommentEditMode, setCommentEditMode] = useState<boolean>(false);
+    const [commentValue, setCommentValue] = useState<string>('');
 
     const handleDeleteButton = () => {
-        const newColumns = columns.map(column => {
-            column.toDoList.map(toDo => {
-                toDo.comments.map(comment => {
-                    if (comment.id === commentId) {
-                        toDo.comments.splice(toDo.comments.findIndex(comment => comment.id === commentId), 1)
-                    }
-                })
-            })
-            return column
+        let commentsCount = 0
+
+        const newComments = comments.filter(comment => comment.id !== commentId);
+
+        todoList.map((todo) => {
+
+            if (todo.id === cardId) {
+                commentsCount = todo.commentsCount - 1
+            }
         })
-        onSetColumns([...newColumns])
+
+        const newTodoList = todoList.map((todo) => {
+
+            if (todo.id === cardId) {
+                todo.commentsCount = commentsCount
+            }
+            return todo
+        })
+
+        onSetComments([...newComments]);
+        onSetCommentCount(commentCount)
+        onSetTodoList([...newTodoList]);
+
     }
+
+    saveTodoList(todoList)
+    saveComments(comments)
 
     const handleEditButton = () => {
-        columns.map(column => {
-            column.toDoList.map(toDo => {
-                toDo.comments.map(comment => {
-                    if (comment.id === commentId) {
-                        setCommentEdit(comment.text)
-                        setCommentActive(!isCommentActive)
-                        setCommentEditInputActive(!isCommentEditInputActive)
-                    }
-                })
-            })
+        comments.map(comment => {
+
+            if (comment.id === commentId) {
+                setCommentValue(comment.commentText)
+                setCommentEditMode(!isCommentEditMode)
+            }
         })
     }
 
-    const handleChangeEditComment = useCallback((({target}: React.ChangeEvent<HTMLInputElement>) => {
-        setCommentEdit(target.value)
-    }), [])
+    saveComments(comments)
+
+    const handleChangeEditComment = ({target}: React.ChangeEvent<HTMLInputElement>) => {
+        setCommentValue(target.value)
+    }
 
     const handleEditComment = () => {
-        const newColumns = columns.map(column => {
-            column.toDoList.map(todo => {
-                todo.comments.map(comment => {
-                    if (comment.id === commentId) {
-                        comment.text = commentEdit
-                    }
-                })
-            })
-            return column
+        const newComments = comments.map(comment => {
+
+            if (comment.id === commentId) {
+                comment.commentText = commentValue
+            }
+            return comment
         })
-        onSetColumns([...newColumns])
-        setCommentActive(!isCommentActive)
-        setCommentEditInputActive(!isCommentEditInputActive)
+
+        onSetComments([...newComments])
+        setCommentEditMode(!isCommentEditMode)
+    }
+
+    saveComments(comments)
+
+    const cancelCommentEdit = () => {
+        setCommentValue(commentText)
+        setCommentEditMode(!isCommentEditMode)
     }
 
     return (
         <Root>
 
             <Flex>
-                <Comment isCommentActive={isCommentActive}>{userName} : {text}</Comment>
 
-                <CommentEditInput isCommentEditInputActive={isCommentEditInputActive}
-                                  onChange={handleChangeEditComment} onBlur={handleEditComment}
-                                  value={commentEdit}/>
+                {isCommentEditMode
 
-                <EditButton onClick={handleEditButton}>Edit</EditButton>
+                    ? <CommentEditInput onChange={handleChangeEditComment} value={commentValue}/>
 
-                <DeleteCommentButton onClick={handleDeleteButton}/>
+                    : <Comment onClick={handleEditButton}>{userName} : {commentText}</Comment>
+                }
+
+                {isCommentEditMode
+
+                    ? <Container>
+
+                        <SaveButton onClick={handleEditComment}>Save</SaveButton>
+
+                        <CancelButton type="button" onClick={cancelCommentEdit}>Cancel</CancelButton>
+
+                    </Container>
+
+                    : <Container>
+
+                        <EditButton onClick={handleEditButton}>Edit</EditButton>
+
+                        <DeleteCommentButton onClick={handleDeleteButton}/>
+
+                    </Container>
+
+                }
 
             </Flex>
 
@@ -79,14 +142,20 @@ const Comments: React.FC<CommentsProps> = ({columns, onSetColumns, showedId, use
 export default Comments
 
 const Root = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `;
 const Flex = styled.div`
   display: flex;
+  width: 80%;
   gap: 10px;
-  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
 `;
-const CommentEditInput = styled.input<{ isCommentEditInputActive: boolean }>`
-  width: 200px;
+const CommentEditInput = styled.input`
+  width: 70%;
   font-size: 18px;
   word-wrap: break-word;
   border-radius: 10px;
@@ -94,35 +163,61 @@ const CommentEditInput = styled.input<{ isCommentEditInputActive: boolean }>`
   box-sizing: border-box;
   margin: 5px 0 0 0;
   padding: 0;
-  display: ${props => props.isCommentEditInputActive ? "block" : "none"};
+
 `;
 const DeleteCommentButton = styled.button`
   padding: 0;
   margin: 0;
-  background: center/100% url(${trashIcon});
+  background: center/100% url(${trashIcon}) no-repeat;
   font-size: 18px;
   border: none;
   border-radius: 5px;
   width: 30px;
   height: 30px;
+  cursor: pointer;
 `;
-const Comment = styled.p<{ isCommentActive: boolean }>`
-  width: 150px;
+const Comment = styled.p`
+  width: 70%;
+  height: 50px;
   font-size: 18px;
   word-wrap: break-word;
   margin: 5px 0 0 0;
   border-radius: 10px;
-  border: solid 1px gray;
   box-sizing: border-box;
   background: darkgray;
-  display: ${props => props.isCommentActive ? "block" : "none"};
+  cursor: pointer;
 `;
 const EditButton = styled.button`
   padding: 0;
-  margin: 0;
-  font-size: 18px;
+  margin: 5px;
+  font-size: 14px;
   border: none;
   border-radius: 5px;
   width: 50px;
   height: 30px;
+  cursor: pointer;
+`;
+const SaveButton = styled.button`
+  padding: 0;
+  margin: 5px;
+  font-size: 14px;
+  border: none;
+  border-radius: 5px;
+  width: 50px;
+  height: 30px;
+  cursor: pointer;
+`;
+const CancelButton = styled.button`
+  padding: 0;
+  margin: 5px;
+  font-size: 14px;
+  border: none;
+  border-radius: 5px;
+  width: 50px;
+  height: 30px;
+  cursor: pointer;
+`;
+const Container = styled.div`
+  display: flex;
+  align-items: center;
 `;
