@@ -178,7 +178,7 @@ const DeleteCommentButton = styled.button`
 `;
 const Comment = styled.p`
   width: 70%;
-  height: 50px;
+  min-height: 50px;
   font-size: 18px;
   word-wrap: break-word;
   margin: 5px 0 0 0;

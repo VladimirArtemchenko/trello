@@ -411,6 +411,7 @@ const CancelButton = styled.button`
   cursor: pointer;
 `;
 const CommentsContainer = styled.div<{ maxHeightModalTask: number }>`
+  margin-top: 20px;
   overflow-y: ${props => props.maxHeightModalTask > 300 ? "scroll" : "auto"};
   width: 100%;
   height: 300px;
