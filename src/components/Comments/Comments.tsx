@@ -1,100 +1,43 @@
 import React, {useState} from "react";
 import styled from "styled-components";
 import trashIcon from "../../images/trash.svg";
-import {CommentType, cardType} from "../../interfaces";
 
 export interface CommentsProps {
-    cardId: string
     userName: string
     commentText: string
     commentId: string
-    comments: CommentType[]
-    onSetComments: (value: CommentType[]) => void
-    commentCount: number
-    onSetCommentCount: (value: number) => void
-    todoList: cardType[]
-    onSetTodoList: (value: cardType[]) => void
-    saveTodoList: (value: cardType[]) => void
-    saveComments: (value: CommentType[]) => void
+    handleDeleteComment: (commentId: string) => void
+    handleEditComment:(commentId: string,commentText:string) => void
+
 };
 
 const Comments: React.FC<CommentsProps> = ({
-                                               cardId,
                                                userName,
                                                commentText,
                                                commentId,
-                                               comments,
-                                               onSetComments,
-                                               commentCount,
-                                               onSetCommentCount,
-                                               todoList,
-                                               onSetTodoList,
-                                               saveTodoList,
-                                               saveComments
+                                               handleDeleteComment,
+                                               handleEditComment
                                            }) => {
 
-    const [isCommentEditMode, setCommentEditMode] = useState<boolean>(false);
-    const [commentValue, setCommentValue] = useState<string>('');
+    const [isCommentEditMode, setCommentEditMode] = useState(false);
+    const [commentValue, setCommentValue] = useState(commentText);
 
     const handleDeleteButton = () => {
-        let commentsCount = 0
-
-        const newComments = comments.filter(comment => comment.id !== commentId);
-
-        todoList.map((todo) => {
-
-            if (todo.id === cardId) {
-                commentsCount = todo.commentsCount - 1
-            }
-        })
-
-        const newTodoList = todoList.map((todo) => {
-
-            if (todo.id === cardId) {
-                todo.commentsCount = commentsCount
-            }
-            return todo
-        })
-
-        onSetComments([...newComments]);
-        onSetCommentCount(commentCount)
-        onSetTodoList([...newTodoList]);
-
+        handleDeleteComment(commentId)
     }
 
-    saveTodoList(todoList)
-    saveComments(comments)
-
-    const handleEditButton = () => {
-        comments.map(comment => {
-
-            if (comment.id === commentId) {
-                setCommentValue(comment.commentText)
-                setCommentEditMode(!isCommentEditMode)
-            }
-        })
+    const handleEditButton =()=>{
+        setCommentEditMode(!isCommentEditMode)
     }
 
-    saveComments(comments)
+    const handleSaveButton = () => {
+        handleEditComment(commentId,commentValue)
+        setCommentEditMode(!isCommentEditMode)
+    }
 
     const handleChangeEditComment = ({target}: React.ChangeEvent<HTMLInputElement>) => {
         setCommentValue(target.value)
     }
-
-    const handleEditComment = () => {
-        const newComments = comments.map(comment => {
-
-            if (comment.id === commentId) {
-                comment.commentText = commentValue
-            }
-            return comment
-        })
-
-        onSetComments([...newComments])
-        setCommentEditMode(!isCommentEditMode)
-    }
-
-    saveComments(comments)
 
     const cancelCommentEdit = () => {
         setCommentValue(commentText)
@@ -108,7 +51,7 @@ const Comments: React.FC<CommentsProps> = ({
 
                 {isCommentEditMode
 
-                    ? <CommentEditInput onChange={handleChangeEditComment} value={commentValue}/>
+                    ? <CommentEditInput onChange={handleChangeEditComment} value={commentValue}  autoFocus={true}/>
 
                     : <Comment onClick={handleEditButton}>{userName} : {commentText}</Comment>
                 }
@@ -117,7 +60,7 @@ const Comments: React.FC<CommentsProps> = ({
 
                     ? <Container>
 
-                        <SaveButton onClick={handleEditComment}>Save</SaveButton>
+                        <SaveButton onClick={handleSaveButton}>Save</SaveButton>
 
                         <CancelButton type="button" onClick={cancelCommentEdit}>Cancel</CancelButton>
 

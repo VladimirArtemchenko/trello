@@ -1,8 +1,9 @@
-import React, {useState} from "react";
-import {Column, Login, Modal} from './components';
-import {ColumnInterface, cardType, CommentType,Json} from "./interfaces";
+import React, {useMemo, useState} from "react";
+import {Column, Login, Modal, TaskModal} from './components';
+import {ColumnInterface, CommentType, CardType} from "./interfaces";
 import styled from "styled-components";
 import {v4 as uuidv4} from "uuid";
+import {useStateWithLocalStorage} from "./hooks";
 
 const initialColumnsName = [
     {id: uuidv4(), columnName: 'To do'},
@@ -13,63 +14,13 @@ const initialColumnsName = [
 
 const App: React.FC = () => {
 
-    const columnWidth = 300
-
-    const initialUserName = () => {
-        const localUserName= localStorage.getItem("userName")??''
-        if (localStorage.getItem("userName")){
-            const localUserNameObj = JSON.parse(localUserName)
-            return localUserNameObj
-        }else {
-            return ''
-        }
-    }
-
-    const initialColumn = () => {
-        const localColumns = localStorage.getItem("columns") ?? ''
-        if (localColumns) {
-            const localColumnsObj = JSON.parse(localColumns)
-            return localColumnsObj
-        } else {
-            localStorage.setItem("columns", JSON.stringify([...initialColumnsName]))
-            return initialColumnsName
-        }
-    }
-
-    const initialTodoList = () => {
-
-        const localTodoList: any = localStorage.getItem("todoList")??''
-        if (localTodoList) {
-            const localTodoListObj = JSON.parse(localTodoList)
-            return localTodoListObj
-        } else {
-            return []
-        }
-    }
-
-    const initialComments = () => {
-        const localComments: any = localStorage.getItem("comments")??''
-        if (localComments) {
-            const localCommentsObj = JSON.parse(localComments)
-            return localCommentsObj
-        } else {
-            return []
-        }
-    }
-
-    const saveColumns = (object: ColumnInterface[]) => {
-        localStorage.setItem("columns", JSON.stringify([...object]))
-    }
-    const saveTodoList = (object: cardType[]) => {
-        localStorage.setItem("todoList", JSON.stringify([...object]))
-    }
-
-    const [userName, setUserName] = useState<string>(initialUserName);
-    const [columns, setColumns] = useState<ColumnInterface[]>(initialColumn);
-    const [todoList, setTodoList] = useState<cardType[]>(initialTodoList);
-    const [comments, setComments] = useState<CommentType[]>(initialComments);
-    const [columnTitle, setColumnTitle] = useState<string>('');
-    const columnsWidth: string = `${(columnWidth + 20) * columns.length}px`;
+    const [userName, setUserName] = useStateWithLocalStorage<string>("userName", '')
+    const [columns, setColumns] = useStateWithLocalStorage<ColumnInterface[]>("columns", initialColumnsName)
+    const [todoList, setTodoList] = useStateWithLocalStorage<CardType[]>("todoList", [])
+    const [comments, setComments] = useStateWithLocalStorage<CommentType[]>("comments", [])
+    const [columnTitle, setColumnTitle] = useState('');
+    const [currentCardId, setCurrentCardId] = useState<string>()
+    const [currentCard, setCurrentCard] = useState<CardType>()
 
     const handleChange = ({target}: React.ChangeEvent<HTMLInputElement>) => {
         setColumnTitle(target.value)
@@ -82,7 +33,72 @@ const App: React.FC = () => {
         }
     }
 
-    saveColumns(columns)
+    const handleChangeColumn = (columnId: string, columnName: string) => {
+        const newColumns = columns.map(column => column.id === columnId
+            ? {...column, columnName: columnName} : column)
+        setColumns([...newColumns]);
+    }
+
+    const handleDeleteColumn = (columnId: string) => {
+        const newColumns = columns.filter(column => column.id !== columnId);
+        setColumns([...newColumns]);
+    }
+
+    const handleShowTaskModal = ({currentTarget}: React.MouseEvent) => {
+        setCurrentCardId(currentTarget.id)
+        const currentCard = todoList.find(todo => todo.id === currentTarget.id)
+        setCurrentCard(currentCard)
+    }
+
+    const filteredComments = useMemo(
+        () => comments.filter((coment) =>
+            coment.cardId === currentCardId),
+        [comments, currentCardId]
+    )
+
+    const currenColumn = useMemo(
+        () => columns.find(column =>
+            column.id === currentCard?.columnId),
+        [columns, currentCard]
+    )
+
+    const handleCreateTask = (columnId: string, taskTitle: string) => {
+        if (taskTitle) {
+            setTodoList([{id: uuidv4(), text: taskTitle, description: '', columnId: columnId,}, ...todoList]);
+        }
+    }
+
+    const handleChangeCardText = (cardId: string, text: string) => {
+        const newTodoList = todoList.map(todo => todo.id === cardId
+            ? {...todo, text: text} : todo)
+        setTodoList([...newTodoList]);
+    }
+
+    const handleChangeDescription = (cardId: string, description: string) => {
+        const newTodoList = todoList.map(todo => todo.id === cardId
+            ? {...todo, description: description} : todo)
+        setTodoList([...newTodoList]);
+    }
+
+    const handleDeleteCard = (cardId: string) => {
+        const newTodoList = todoList.filter(todo => todo.id !== cardId);
+        setTodoList([...newTodoList]);
+    }
+
+    const handleAddComment = (cardId: string, commentText: string) => {
+        setComments([{id: uuidv4(), commentText: commentText, cardId: cardId}, ...comments]);
+    }
+
+    const handleDeleteComment = (commentId: string) => {
+        const newComments = comments.filter(comment => comment.id !== commentId);
+        setComments([...newComments]);
+    }
+
+    const handleEditComment = (commentId: string, commentText: string) => {
+        const newComments = comments.map(comment => comment.id === commentId
+            ? {...comment, commentText: commentText} : comment)
+        setComments([...newComments]);
+    }
 
     return (
 
@@ -95,28 +111,29 @@ const App: React.FC = () => {
                     <CentredFlex>
 
                         <NewColumn type="text" onChange={handleChange} value={columnTitle}/>
+
                         <NewColumnButton onClick={handleCreateColumn}>Add Board</NewColumnButton>
 
                     </CentredFlex>
 
-                    <Columns columnsWidth={columnsWidth}>
+                    <Columns $columnsCount={columns.length}>
 
                         {columns.map((column) => {
 
                             return (
-                                <Column userName={userName}
-                                        columns={columns}
-                                        onSetColumns={setColumns}
-                                        columnId={column.id}
-                                        key={column.id}
-                                        columnTitle={column.columnName}
-                                        onSetTodoList={setTodoList}
-                                        todoList={todoList}
-                                        comments={comments}
-                                        onSetComments={setComments}
-                                        saveColumns={saveColumns}
-                                        saveTodoList={saveTodoList}
 
+                                <Column
+                                    handleChangeColumn={handleChangeColumn}
+                                    handleDeleteColumn={handleDeleteColumn}
+                                    handleShowTaskModal={handleShowTaskModal}
+                                    handleChangeCardText={handleChangeCardText}
+                                    handleDeleteCard={handleDeleteCard}
+                                    handleCreateTask={handleCreateTask}
+                                    columnId={column.id}
+                                    columnTitle={column.columnName}
+                                    todoList={todoList}
+                                    comments={comments}
+                                    key={column.id}
                                 />
                             )
                         })}
@@ -130,6 +147,26 @@ const App: React.FC = () => {
                 </Modal>
             }
 
+            {currentCardId && currentCard && currenColumn
+                && <Modal>
+
+                    <TaskModal
+                        userName={userName}
+                        onSetCurrentCardId={setCurrentCardId}
+                        currentCardId={currentCardId}
+                        currentCard={currentCard}
+                        currentColumn={currenColumn}
+                        currentComments={filteredComments}
+                        handleChangeCardText={handleChangeCardText}
+                        handleChangeDescription={handleChangeDescription}
+                        handleAddComment={handleAddComment}
+                        handleDeleteComment={handleDeleteComment}
+                        handleEditComment={handleEditComment}
+                    />
+
+                </Modal>}
+
+
         </Root>
     )
 }
@@ -141,9 +178,10 @@ const Root = styled.div`
   display: flex;
   flex-direction: column;
 `;
-const Columns = styled.div<{ columnsWidth: string }>`
+const Columns = styled.div<{ $columnsCount: number }>`
   display: flex;
-  width: ${props => props.columnsWidth};
+  width: ${({$columnsCount}) =>
+          `${320 * $columnsCount}px`};
   box-sizing: border-box;
   gap: 20px;
 `;

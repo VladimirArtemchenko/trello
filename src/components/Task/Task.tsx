@@ -1,81 +1,56 @@
-import React, {useState} from "react";
+import React, {useMemo, useState} from "react";
 import styled from "styled-components";
 import trashIcon from "../../images/trash.svg";
-import {cardType, CommentType} from "../../interfaces";
-import {Modal, TaskModal} from "../index";
+import {CardType, CommentType} from "../../interfaces";
 
 export interface TaskProps {
-    todoList: cardType[]
-    onSetTodoList: (value: cardType[]) => void
-    columnId: string
-    columnTitle: string
-    todoText: string
-    cardId: string
-    userName: string
-    todoDescription: string
+    handleShowTaskModal: ({target}: React.MouseEvent<HTMLDivElement>) => void
+    handleChangeCardText: (cardId: string, text: string) => void
+    handleDeleteCard: (cardId: string) => void
+    card: CardType
     comments: CommentType[]
-    onSetComments: (value: CommentType[]) => void
-    saveTodoList: (value: cardType[]) => void
+
 };
 
 const Task: React.FC<TaskProps> = ({
-                                       userName,
-                                       todoText,
-                                       cardId,
-                                       todoList,
-                                       onSetTodoList,
-                                       columnTitle,
-                                       todoDescription,
+                                       handleShowTaskModal,
+                                       handleDeleteCard,
+                                       handleChangeCardText,
+                                       card,
                                        comments,
-                                       onSetComments,
-                                       saveTodoList
+
                                    }) => {
 
-    const [taskTitle, setValueTask] = useState<string>(todoText);
-    const [value, setValue] = useState<string>('');
-    const [isTaskActive, setTaskActive] = useState<boolean>(true);
-    const [isTaskModalActive, setTaskModalActive] = useState<boolean>(false);
-    const [commentCount, setCommentCount] = useState<number>(0)
+    const [value, setValue] = useState(card.text);
+    const [isTaskActive, setTaskActive] = useState(true)
 
+    const filteredComments = useMemo(
+        () => comments.filter((coment) =>
+            coment.cardId === card.id),
+        [card, comments]
+    )
 
-    const handleEditMode = () => {
-        setValue(todoText)
+    const handleEditMode = (event:React.MouseEvent<HTMLButtonElement>) => {
+        setValue(card.text)
         setTaskActive(false)
     }
 
-    const handleChangeTask = ({target}: React.ChangeEvent<HTMLInputElement>) => {
-        setValueTask(target.value)
-        setValue(target.value)
+    const handleChangeTask = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setValue(event.target.value)
     }
 
-    const handleSaveTask = () => {
-        const newTodoList = todoList.map(todo => {
-
-            if (todo.id === cardId) {
-                todo.text = taskTitle
-            }
-            return todo
-        })
-
-        onSetTodoList([...newTodoList])
+    const handleSaveTask = (event:React.MouseEvent<HTMLButtonElement>) => {
+        handleChangeCardText(card.id, value)
         setTaskActive(true)
     }
 
-    saveTodoList(todoList)
 
-    const handleCanceled = () => {
+    const handleCanceleTaskEditing = (event:React.MouseEvent<HTMLButtonElement>) => {
         setTaskActive(true)
     }
 
-    const handleDeleteTask = () => {
-        const newTodoList = todoList.filter(todo => todo.id !== cardId);
-        onSetTodoList([...newTodoList]);
-    }
-
-    saveTodoList(todoList)
-
-    const handleShowTaskModal = ({target}: React.MouseEvent<HTMLDivElement>) => {
-        setTaskModalActive(true)
+    const handleDeleteTask = (event:React.MouseEvent<HTMLButtonElement>) => {
+        handleDeleteCard(card.id)
     }
 
     return (
@@ -85,10 +60,10 @@ const Task: React.FC<TaskProps> = ({
             <Flex>
 
                 {isTaskActive
-                    ? <Text id={cardId} onClick={handleShowTaskModal}>{todoText}</Text>
+                    ? <Text id={card.id} onClick={handleShowTaskModal}>{card.text}</Text>
 
                     : <EditTask onChange={handleChangeTask}
-                                value={value} name={todoText}/>
+                                value={value} name={card.text} autoFocus={true}/>
                 }
 
                 <FlexColumn>
@@ -106,7 +81,7 @@ const Task: React.FC<TaskProps> = ({
 
                             <SaveButton onClick={handleSaveTask}>Save</SaveButton>
 
-                            <CancelButton onClick={handleCanceled}>Cancel</CancelButton>
+                            <CancelButton onClick={handleCanceleTaskEditing}>Cancel</CancelButton>
 
                         </Container>
                     }
@@ -116,35 +91,7 @@ const Task: React.FC<TaskProps> = ({
 
             </Flex>
 
-            {todoList.map((todo) => {
-
-                if (todo.id === cardId) {
-                    return (
-                        <Comments>Comments:{todo.commentsCount}</Comments>
-                    )
-                }
-            })}
-
-            {isTaskModalActive
-
-                && <Modal>
-
-                    <TaskModal comments={comments}
-                               onSetComments={onSetComments}
-                               cardId={cardId}
-                               columnTitle={columnTitle}
-                               todoText={todoText}
-                               todoDescription={todoDescription}
-                               userName={userName}
-                               onSetModalActive={setTaskModalActive}
-                               todoList={todoList}
-                               onSetTodoList={onSetTodoList}
-                               onSetCommentCount={setCommentCount}
-                               commentCount={commentCount}
-                               saveTodoList={saveTodoList}
-                    />
-
-                </Modal>}
+            <Comments>Comments:{filteredComments.length}</Comments>
 
         </Root>
     )
@@ -192,7 +139,6 @@ const EditTask = styled.input`
   height: 50px;
   font-size: 18px;
   word-wrap: break-word;
-  w;
   margin: 5px 0 0 0;
   padding: 0;
 `;

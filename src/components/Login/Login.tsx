@@ -7,7 +7,7 @@ export interface LoginProps {
 
 const Login: React.FC<LoginProps> = ({onSetUserName}) => {
 
-    const [value, setValue] = useState<string>('');
+    const [value, setValue] = useState('');
 
     const handleConfirm = () => {
 

@@ -1,88 +1,67 @@
-import React, {useState} from "react";
+import React, {useState, useMemo} from "react";
 import styled from "styled-components";
 import trashIcon from "../../images/trash.svg";
-import {v4 as uuidv4} from 'uuid';
 import {Task} from "../index";
-import {cardType, ColumnInterface, CommentType} from "../../interfaces";
+import {CardType, CommentType} from "../../interfaces";
 
 export interface ColumnProps {
+    handleShowTaskModal: ({target}: React.MouseEvent<HTMLDivElement>) => void
+    handleChangeColumn: (columnId: string, columnName: string) => void
+    handleDeleteColumn: (columnId: string) => void
+    handleChangeCardText: (cardId: string, text: string) => void
+    handleDeleteCard: (cardId: string) => void
+    handleCreateTask:(columnId:string,taskTitle:string)=>void
     columnTitle: string
     columnId: string
-    onSetTodoList: (value: cardType[]) => void
-    todoList: cardType[]
-    columns: ColumnInterface[]
-    onSetColumns: (value: ColumnInterface[]) => void
-    userName: string
+    todoList: CardType[]
     comments: CommentType[]
-    onSetComments: (value: CommentType[]) => void
-    saveColumns: (value: ColumnInterface[]) => void
-    saveTodoList: (value: cardType[]) => void
 };
 
 const Column: React.FC<ColumnProps> = ({
+                                           handleChangeColumn,
+                                           handleDeleteColumn,
+                                           handleDeleteCard,
+                                           handleChangeCardText,
                                            columnTitle,
                                            columnId,
-                                           onSetColumns,
-                                           columns,
-                                           onSetTodoList,
                                            todoList,
-                                           userName,
-                                           comments,
-                                           onSetComments,
-                                           saveColumns,
-                                           saveTodoList
-
+                                           handleCreateTask,
+                                           handleShowTaskModal,
+                                           comments
                                        }) => {
 
-    const [taskTitle, setTaskTitle] = useState<string>('');
-    const [title, setTitle] = useState<string>(columnTitle);
-    const [isEditActive, setEditActive] = useState<boolean>(false);
+    const [taskTitle, setTaskTitle] = useState('');
+    const [title, setTitle] = useState(columnTitle);
+    const [isEditActive, setEditActive] = useState(false);
+
+    const filteredTodoList = useMemo(
+        () => todoList.filter((todo) =>
+            todo.columnId === columnId),
+        [columnId, todoList]
+    )
 
     const handleChange = ({target}: React.ChangeEvent<HTMLInputElement>) => {
         setTaskTitle(target.value)
     }
 
-    const handleCreateTask = () => {
-        if (taskTitle) {
-            onSetTodoList([{
-                id: uuidv4(),
-                text: taskTitle,
-                description: 'Введите подробное описание',
-                columnId: columnId,
-                commentsCount: 0
-            }, ...todoList]);
+    const handleNewTaskButton = () => {
+        handleCreateTask(columnId,taskTitle)
             setTaskTitle('');
-        }
     }
-
-    saveTodoList(todoList)
 
     const handleEditColumn = () => {
         setEditActive(!isEditActive)
     };
 
-    const handleChangeColumn = ({target}: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChangeTitle = ({target}: React.ChangeEvent<HTMLInputElement>) => {
         setTitle(target.value)
-
-        const newColumns = columns.map(column => {
-
-            if (column.id === columnId) {
-                column.columnName = target.value
-            }
-            return column
-        });
-
-        onSetColumns([...newColumns])
+        handleChangeColumn(columnId, target.value)
     }
 
-    saveColumns(columns)
-
-    const handleDeleteColumnButtonClick = () => {
-        const newColumns = columns.filter(column => column.id !== columnId);
-        onSetColumns([...newColumns]);
+    const handleDeleteColumnButton = () => {
+        handleDeleteColumn(columnId)
     }
 
-    saveColumns(columns)
 
     return (
         <Root>
@@ -91,13 +70,13 @@ const Column: React.FC<ColumnProps> = ({
 
                 {isEditActive
 
-                    ? <EditTitle onChange={handleChangeColumn} onBlur={handleEditColumn}
-                                 value={title} name={columnTitle}/>
+                    ? <EditTitle onChange={handleChangeTitle} onBlur={handleEditColumn}
+                                 value={title} name={columnTitle} autoFocus={true}/>
 
-                    : <Title onClick={handleEditColumn}>{columnTitle}</Title>
+                    : <Title onClick={handleEditColumn}>{title}</Title>
                 }
 
-                <DeleteColumnButton onClick={handleDeleteColumnButtonClick}/>
+                <DeleteColumnButton onClick={handleDeleteColumnButton}/>
 
             </Flex>
 
@@ -105,32 +84,26 @@ const Column: React.FC<ColumnProps> = ({
 
                 <NewTask onChange={handleChange} value={taskTitle} name={taskTitle}/>
 
-                <NewTaskButton onClick={handleCreateTask}>Add</NewTaskButton>
+                <NewTaskButton onClick={handleNewTaskButton}>Add</NewTaskButton>
 
             </Flex>
 
             <Columns>
 
-                {todoList.map((todo) => {
-                    if (todo.columnId === columnId) {
+                {filteredTodoList.map((card) => {
 
                         return (
-                            <Task columnTitle={columnTitle}
-                                  userName={userName}
-                                  columnId={todo.columnId}
-                                  todoList={todoList}
-                                  onSetTodoList={onSetTodoList}
-                                  todoText={todo.text}
-                                  todoDescription={todo.description}
-                                  cardId={todo.id}
-                                  key={todo.id}
-                                  comments={comments}
-                                  onSetComments={onSetComments}
-                                  saveTodoList={saveTodoList}
+                            <Task
+                                handleChangeCardText={handleChangeCardText}
+                                handleDeleteCard={handleDeleteCard}
+                                card={card}
+                                key={card.id}
+                                comments={comments}
+                                handleShowTaskModal={handleShowTaskModal}
                             />
                         )
                     }
-                })}
+                )}
 
             </Columns>
 

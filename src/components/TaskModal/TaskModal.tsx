@@ -1,65 +1,52 @@
 import React, {useEffect, useState} from "react";
 import styled from "styled-components";
-import {v4 as uuidv4} from "uuid";
-import {cardType, CommentType} from "../../interfaces";
+import {CardType, ColumnInterface, CommentType} from "../../interfaces";
 import trashIcon from "../../images/trash.svg";
 import {Comments} from "../index";
 
+const WINDOW_HEIGHT: string = `${window.innerHeight}px`;
+
 export interface TaskPopupProps {
     userName: string
-    onSetModalActive: (value: boolean) => void
-    todoDescription: string
-    columnTitle: string
-    cardId: string
-    todoText: string
-    todoList: cardType[]
-    onSetTodoList: (value: cardType[]) => void
-    comments: CommentType[]
-    onSetComments: (value: CommentType[]) => void
-    onSetCommentCount: (value: number) => void
-    commentCount: number
-    saveTodoList: (value: cardType[]) => void
+    onSetCurrentCardId: (value: string) => void
+    currentCardId: string
+    handleChangeCardText: (cardId: string, text: string) => void
+    handleChangeDescription: (cardId: string, description: string) => void
+    handleAddComment: (cardId: string, commentText: string) => void
+    handleDeleteComment: (commentId: string) => void
+    handleEditComment:(commentId: string,commentText:string) => void
+    currentCard: CardType
+    currentColumn: ColumnInterface
+    currentComments: CommentType[]
 }
 
 const TaskPopup: React.FC<TaskPopupProps> = ({
                                                  userName,
-                                                 onSetModalActive,
-                                                 todoDescription,
-                                                 columnTitle,
-                                                 cardId,
-                                                 todoText,
-                                                 todoList,
-                                                 onSetTodoList,
-                                                 comments,
-                                                 onSetComments,
-                                                 onSetCommentCount,
-                                                 commentCount,
-                                                 saveTodoList
+                                                 onSetCurrentCardId,
+                                                 currentCardId,
+                                                 handleChangeCardText,
+                                                 currentCard,
+                                                 currentColumn,
+                                                 handleChangeDescription,
+                                                 handleAddComment,
+                                                 handleDeleteComment,
+                                                 handleEditComment,
+                                                 currentComments,
                                              }) => {
 
-    const height: string = `${window.innerHeight}px`;
-    const maxHeightModalTask: number = commentCount * 50
-
-    const [title, setTitle] = useState<string>('');
-    const [description, setDescription] = useState<string>(todoDescription);
-    const [comment, setComment] = useState<string>('');
+    const [title, setTitle] = useState(currentCard.text);
+    const [description, setDescription] = useState(currentCard.description);
+    const [value, setValue] = useState(currentCard.description);
+    const [comment, setComment] = useState('');
     const [inputCommentValue, setInputCommentValue] = useState<string>('');
     const [isDescriptionEditMode, setDescriptionEditMode] = useState<boolean>(false);
     const [isTitleEditMode, setTitleEditMode] = useState<boolean>(false);
 
-
-    const saveComments = (object: CommentType[]) => {
-        localStorage.setItem("comments", JSON.stringify([...object]))
+    const handleCloseModal = () => {
+        onSetCurrentCardId('');
     }
 
     const handleEditTitle = () => {
-
-        todoList.map((todo) => {
-
-            if (todo.id === cardId) {
-                setTitle(todo.text)
-            }
-        })
         setTitleEditMode(!isTitleEditMode)
     }
 
@@ -68,23 +55,8 @@ const TaskPopup: React.FC<TaskPopupProps> = ({
     }
 
     const handleTitle = () => {
-
-        const newTodoList = todoList.map(todo => {
-
-            if (todo.id === cardId) {
-                todo.text = title
-            }
-            return todo
-        })
-
-        onSetTodoList([...newTodoList])
+        handleChangeCardText(currentCardId, title)
         setTitleEditMode(!isTitleEditMode)
-    }
-
-    saveTodoList(todoList)
-
-    const handleEditDescription = () => {
-        setDescriptionEditMode(!isDescriptionEditMode)
     }
 
     useEffect(() => {
@@ -102,12 +74,29 @@ const TaskPopup: React.FC<TaskPopupProps> = ({
         };
     }, []);
 
-    const handleCloseModal = () => {
-        onSetModalActive(false);
+    const handleEditDescription = () => {
+        setDescription(value)
+        setDescriptionEditMode(!isDescriptionEditMode)
     }
 
-    const handleChangeDescription = ({target}: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const handleChangeInputDescription = ({target}: React.ChangeEvent<HTMLTextAreaElement>) => {
         setDescription(target.value)
+    }
+
+    const handleEditButton = () => {
+        handleChangeDescription(currentCardId, description)
+        setValue(description)
+        setDescriptionEditMode(!isDescriptionEditMode)
+    }
+
+    const cancelDescriptionEdit = () => {
+        setDescription(value)
+        setDescriptionEditMode(!isDescriptionEditMode)
+    }
+
+    const handleDeleteButton = () => {
+        handleChangeDescription(currentCardId, '')
+        setValue('')
     }
 
     const handleChangeComment = ({target}: React.ChangeEvent<HTMLInputElement>) => {
@@ -115,96 +104,32 @@ const TaskPopup: React.FC<TaskPopupProps> = ({
         setInputCommentValue(target.value)
     }
 
-    const handleDeleteButton = () => {
-
-        const newTodoList = todoList.map(todo => {
-
-            if (todo.id === cardId) {
-                todo.description = "Введите подробное описание"
-            }
-            return todo
-        })
-        setDescription('Введите подробное описание')
-        onSetTodoList([...newTodoList])
-
-    }
-
-    saveTodoList(todoList)
-
-    const handleDescription = () => {
-
-        const newTodoList = todoList.map((todo) => {
-
-            if (todo.id === cardId) {
-
-                if (description === '') {
-                    todo.description = 'Введите подробное описание'
-                } else {
-                    todo.description = description
-                }
-
-            }
-
-            return todo
-
-        })
-
-        onSetTodoList([...newTodoList])
-        handleEditDescription()
-
-    }
-
-    saveTodoList(todoList)
-
-    const handleAddComment = () => {
-        let commentsCount = 0
-
-        if (comment) {
-            onSetComments([{id: uuidv4(), commentText: comment, cardId: cardId}, ...comments]);
-            comments.map((comment) => {
-                if (comment.cardId === cardId) {
-                    commentsCount = commentsCount + 1
-                }
-            })
-
-            const newTodoList = todoList.map((todo) => {
-                if (todo.id === cardId) {
-                    todo.commentsCount = commentsCount + 1
-                }
-                return todo
-            })
-            onSetCommentCount(commentsCount)
-            onSetTodoList([...newTodoList])
+    const handleCommentButton = () => {
+        handleAddComment(currentCardId,comment)
             setComment('');
-        }
     }
-
-    saveComments(comments)
-    saveTodoList(todoList)
 
     const cancelCommentEdit = () => {
         setInputCommentValue('')
     }
 
-    const cancelDescriptionEdit = () => {
-        setDescription(todoDescription)
-        handleEditDescription()
-    }
 
     return (
-        <Root height={height} onClick={handleCloseModal}>
+        <Root $height={WINDOW_HEIGHT} onClick={handleCloseModal}>
 
             <Container onClick={event => event.stopPropagation()}>
 
                 {isTitleEditMode
 
                     ? <InputTitle value={title} onChange={handleChangeTitle}
-                                  onBlur={handleTitle}/>
+                                  onBlur={handleTitle} autoFocus={true}/>
 
-                    : <Title onClick={handleEditTitle}>{todoText}</Title>
+                    : <Title onClick={handleEditTitle}>{title}</Title>
                 }
 
-                <Text>колонке {columnTitle}</Text>
+                <Text> в колонке </Text>
+
+                <Text>{currentColumn.columnName}</Text>
 
                 <Text>Описание</Text>
 
@@ -212,15 +137,17 @@ const TaskPopup: React.FC<TaskPopupProps> = ({
 
                     {isDescriptionEditMode
 
-                        ? <InputDescription placeholder={description} value={description}
-                                            onChange={handleChangeDescription}/>
+                        ? <InputDescription placeholder={value || "Ведите подробное описание"}
+                                            value={description}
+                                            onChange={handleChangeInputDescription} autoFocus={true}/>
 
-                        : <Description onClick={handleEditDescription}>{todoDescription}</Description>
+                        : <Description
+                            onClick={handleEditDescription}>{value || "Ведите подробное описание"}</Description>
                     }
 
                     <FlexColumn>
 
-                        <EditButton type="submit" onClick={handleDescription}>Add</EditButton>
+                        <EditButton type="submit" onClick={handleEditButton}>Add</EditButton>
 
                         {isDescriptionEditMode
 
@@ -239,38 +166,29 @@ const TaskPopup: React.FC<TaskPopupProps> = ({
                     <CommentInput type={"text"} placeholder={"Введите свой коментарий"} onChange={handleChangeComment}
                                   value={inputCommentValue} onBlur={cancelCommentEdit}/>
 
-                    <CommentButton type="submit" onClick={handleAddComment}>Comment</CommentButton>
+                    <CommentButton type="submit" onClick={handleCommentButton}>Comment</CommentButton>
 
                 </Flex>
 
-                <CommentsContainer maxHeightModalTask={maxHeightModalTask}>
+                <CommentsContainer $commentsCount={currentComments.length}>
 
-                    {comments.map((comment) => {
+                        <div>
+                            {currentComments.map((comment) => {
+                                    return (
+                                        <Comments
+                                            userName={userName}
+                                            commentText={comment.commentText}
+                                            commentId={comment.id}
+                                            handleDeleteComment={handleDeleteComment}
+                                            handleEditComment={handleEditComment}
 
-                        if (comment.cardId === cardId) {
-
-                            return (
-                                <Comments cardId={cardId}
-                                          userName={userName}
-                                          commentText={comment.commentText}
-                                          commentId={comment.id}
-                                          comments={comments}
-                                          onSetComments={onSetComments}
-                                          commentCount={commentCount}
-                                          onSetCommentCount={onSetCommentCount}
-                                          todoList={todoList}
-                                          onSetTodoList={onSetTodoList}
-                                          saveTodoList={saveTodoList}
-                                          saveComments={saveComments}
-                                />
-                            )
-                        }
-                    })}
+                                        />
+                                    )
+                                }
+                            )}
+                        </div>
 
                 </CommentsContainer>
-
-
-                <ConfirmButton type="button" onClick={handleCloseModal}>Confirm</ConfirmButton>
 
             </Container>
 
@@ -280,10 +198,10 @@ const TaskPopup: React.FC<TaskPopupProps> = ({
 
 export default TaskPopup
 
-const Root = styled.div<{ height: string }>`
+const Root = styled.div<{ $height: string }>`
   position: fixed;
   width: 100%;
-  min-height: ${props => props.height};
+  min-height: ${props => props.$height};
   left: 0;
   top: 0;
   background: rgba(0, 0, 0, 0.4);
@@ -302,17 +220,10 @@ const Container = styled.div`
   border-radius: 20px;
   margin: 50px;
 `;
-const ConfirmButton = styled.button`
-  font-size: 18px;
-  border: none;
-  border-radius: 5px;
-  background: white;
-  height: 30px;
-  margin-top: 20px;
-  cursor: pointer;
-`;
 
 const Title = styled.h1`
+  background: aliceblue;
+  border-radius: 5px;
   width: 80%;
   text-align: center;
   font-size: 30px;
@@ -410,9 +321,10 @@ const CancelButton = styled.button`
   height: 30px;
   cursor: pointer;
 `;
-const CommentsContainer = styled.div<{ maxHeightModalTask: number }>`
+const CommentsContainer = styled.div<{ $commentsCount: number }>`
   margin-top: 20px;
-  overflow-y: ${props => props.maxHeightModalTask > 300 ? "scroll" : "auto"};
+  margin-bottom:20px ;
+  overflow-y: ${props => (props.$commentsCount*50) > 300 ? "scroll" : "auto"};
   width: 100%;
   height: 300px;
 `;
