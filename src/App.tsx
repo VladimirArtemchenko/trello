@@ -103,6 +103,9 @@ const App: React.FC = () => {
         setComments([...newComments]);
     }
 
+    const cardModalRenderingConditions = currentCardId && currentCard && currentColumn
+
+
     return (
 
         <Root>
@@ -150,7 +153,7 @@ const App: React.FC = () => {
                 </Modal>
             }
 
-            {currentCardId && currentCard && currentColumn
+            {cardModalRenderingConditions
                 && <Modal>
 
                     <TaskModal
