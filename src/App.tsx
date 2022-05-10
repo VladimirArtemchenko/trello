@@ -56,7 +56,7 @@ const App: React.FC = () => {
     const currentCard = useMemo(
         () => todoList.find(todo =>
             todo.id === currentCardId),
-        [columns, currentCardId]
+        [todoList, currentCardId]
     )
 
     const currentColumn = useMemo(
@@ -103,7 +103,7 @@ const App: React.FC = () => {
         setComments([...newComments]);
     }
 
-    const cardModalRenderingConditions = currentCardId && currentCard && currentColumn
+    const isCardPopupOpen = currentCardId && currentCard && currentColumn
 
 
     return (
@@ -153,7 +153,7 @@ const App: React.FC = () => {
                 </Modal>
             }
 
-            {cardModalRenderingConditions
+            {isCardPopupOpen
                 && <Modal>
 
                     <TaskModal

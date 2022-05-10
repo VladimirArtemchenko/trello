@@ -1,6 +1,6 @@
 import {useState, useEffect} from "react";
 
-const useStateWithLocalStorage = <T>( key: string, defaultValue: T) => {
+export const useStateWithLocalStorage = <T>( key: string, defaultValue: T) => {
     const [value, setValue] = useState(() => {
         const stickyValue = window.localStorage.getItem(key);
         return stickyValue !== null ? (JSON.parse(stickyValue) as T) : defaultValue;
@@ -10,5 +10,3 @@ const useStateWithLocalStorage = <T>( key: string, defaultValue: T) => {
     }, [key, value]);
     return [value, setValue] as const;
 };
-
-export default useStateWithLocalStorage

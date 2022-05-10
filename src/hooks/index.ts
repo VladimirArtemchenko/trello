@@ -1,1 +1,1 @@
-export {default as useStateWithLocalStorage}  from './useStateWithLocalStorage'
+export {useStateWithLocalStorage}  from './useStateWithLocalStorage'

@@ -57,7 +57,12 @@ const TaskPopup: React.FC<TaskPopupProps> = ({
     }
 
     const handleTitle = () => {
-        handleChangeCardText(currentCardId, title)
+        if (title !=='' ) {
+            handleChangeCardText(currentCardId, title)
+        }else{
+            handleChangeCardText(currentCardId, currentCardText)
+            setTitle(currentCardText)
+        }
         setTitleEditMode(!isTitleEditMode)
     }
 
