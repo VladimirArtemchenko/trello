@@ -1,13 +1,14 @@
 import React, {useMemo, useState} from "react";
 import styled from "styled-components";
 import trashIcon from "../../images/trash.svg";
-import {CardType, CommentType} from "../../interfaces";
+import {CommentType} from "../../interfaces";
 
 export interface TaskProps {
     handleShowTaskModal: ({target}: React.MouseEvent<HTMLDivElement>) => void
     handleChangeCardText: (cardId: string, text: string) => void
     handleDeleteCard: (cardId: string) => void
-    card: CardType
+    cardId: string
+    cardText:string
     comments: CommentType[]
 
 };
@@ -16,22 +17,23 @@ const Task: React.FC<TaskProps> = ({
                                        handleShowTaskModal,
                                        handleDeleteCard,
                                        handleChangeCardText,
-                                       card,
+                                       cardId,
+                                       cardText,
                                        comments,
 
                                    }) => {
 
-    const [value, setValue] = useState(card.text);
+    const [value, setValue] = useState(cardText);
     const [isTaskActive, setTaskActive] = useState(true)
 
     const filteredComments = useMemo(
         () => comments.filter((coment) =>
-            coment.cardId === card.id),
-        [card, comments]
+            coment.cardId === cardId),
+        [cardId, comments]
     )
 
     const handleEditMode = (event:React.MouseEvent<HTMLButtonElement>) => {
-        setValue(card.text)
+        setValue(cardText)
         setTaskActive(false)
     }
 
@@ -40,7 +42,12 @@ const Task: React.FC<TaskProps> = ({
     }
 
     const handleSaveTask = (event:React.MouseEvent<HTMLButtonElement>) => {
-        handleChangeCardText(card.id, value)
+        if (value !== ''){
+            handleChangeCardText(cardId, value)
+    }else {
+            handleChangeCardText(cardId, cardText)
+            setValue(cardText)
+        }
         setTaskActive(true)
     }
 
@@ -50,7 +57,7 @@ const Task: React.FC<TaskProps> = ({
     }
 
     const handleDeleteTask = (event:React.MouseEvent<HTMLButtonElement>) => {
-        handleDeleteCard(card.id)
+        handleDeleteCard(cardId)
     }
 
     return (
@@ -60,10 +67,10 @@ const Task: React.FC<TaskProps> = ({
             <Flex>
 
                 {isTaskActive
-                    ? <Text id={card.id} onClick={handleShowTaskModal}>{card.text}</Text>
+                    ? <Text id={cardId} onClick={handleShowTaskModal}>{cardText}</Text>
 
                     : <EditTask onChange={handleChangeTask}
-                                value={value} name={card.text} autoFocus={true}/>
+                                value={value} name={cardText} autoFocus={true}/>
                 }
 
                 <FlexColumn>

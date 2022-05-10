@@ -20,7 +20,6 @@ const App: React.FC = () => {
     const [comments, setComments] = useStateWithLocalStorage<CommentType[]>("comments", [])
     const [columnTitle, setColumnTitle] = useState('');
     const [currentCardId, setCurrentCardId] = useState<string>()
-    const [currentCard, setCurrentCard] = useState<CardType>()
 
     const handleChange = ({target}: React.ChangeEvent<HTMLInputElement>) => {
         setColumnTitle(target.value)
@@ -46,17 +45,21 @@ const App: React.FC = () => {
 
     const handleShowTaskModal = ({currentTarget}: React.MouseEvent) => {
         setCurrentCardId(currentTarget.id)
-        const currentCard = todoList.find(todo => todo.id === currentTarget.id)
-        setCurrentCard(currentCard)
     }
 
     const filteredComments = useMemo(
-        () => comments.filter((coment) =>
-            coment.cardId === currentCardId),
+        () => comments.filter((comment) =>
+            comment.cardId === currentCardId),
         [comments, currentCardId]
     )
 
-    const currenColumn = useMemo(
+    const currentCard = useMemo(
+        () => todoList.find(todo =>
+            todo.id === currentCardId),
+        [columns, currentCardId]
+    )
+
+    const currentColumn = useMemo(
         () => columns.find(column =>
             column.id === currentCard?.columnId),
         [columns, currentCard]
@@ -147,15 +150,16 @@ const App: React.FC = () => {
                 </Modal>
             }
 
-            {currentCardId && currentCard && currenColumn
+            {currentCardId && currentCard && currentColumn
                 && <Modal>
 
                     <TaskModal
                         userName={userName}
                         onSetCurrentCardId={setCurrentCardId}
                         currentCardId={currentCardId}
-                        currentCard={currentCard}
-                        currentColumn={currenColumn}
+                        currentCardText={currentCard.text}
+                        currentCardDescription={currentCard.description}
+                        currentColumnTitle={currentColumn.columnName}
                         currentComments={filteredComments}
                         handleChangeCardText={handleChangeCardText}
                         handleChangeDescription={handleChangeDescription}

@@ -4,7 +4,7 @@ import {CardType, ColumnInterface, CommentType} from "../../interfaces";
 import trashIcon from "../../images/trash.svg";
 import {Comments} from "../index";
 
-const WINDOW_HEIGHT: string = `${window.innerHeight}px`;
+const WINDOW_HEIGHT = `${window.innerHeight}px`;
 
 export interface TaskPopupProps {
     userName: string
@@ -15,8 +15,9 @@ export interface TaskPopupProps {
     handleAddComment: (cardId: string, commentText: string) => void
     handleDeleteComment: (commentId: string) => void
     handleEditComment:(commentId: string,commentText:string) => void
-    currentCard: CardType
-    currentColumn: ColumnInterface
+    currentCardText: string
+    currentCardDescription:string
+    currentColumnTitle: string
     currentComments: CommentType[]
 }
 
@@ -25,8 +26,9 @@ const TaskPopup: React.FC<TaskPopupProps> = ({
                                                  onSetCurrentCardId,
                                                  currentCardId,
                                                  handleChangeCardText,
-                                                 currentCard,
-                                                 currentColumn,
+                                                 currentCardText,
+                                                 currentCardDescription,
+                                                 currentColumnTitle,
                                                  handleChangeDescription,
                                                  handleAddComment,
                                                  handleDeleteComment,
@@ -34,9 +36,9 @@ const TaskPopup: React.FC<TaskPopupProps> = ({
                                                  currentComments,
                                              }) => {
 
-    const [title, setTitle] = useState(currentCard.text);
-    const [description, setDescription] = useState(currentCard.description);
-    const [value, setValue] = useState(currentCard.description);
+    const [title, setTitle] = useState(currentCardText);
+    const [description, setDescription] = useState(currentCardDescription);
+    const [value, setValue] = useState(currentCardDescription);
     const [comment, setComment] = useState('');
     const [inputCommentValue, setInputCommentValue] = useState<string>('');
     const [isDescriptionEditMode, setDescriptionEditMode] = useState<boolean>(false);
@@ -129,7 +131,7 @@ const TaskPopup: React.FC<TaskPopupProps> = ({
 
                 <Text> в колонке </Text>
 
-                <Text>{currentColumn.columnName}</Text>
+                <Text>{currentColumnTitle}</Text>
 
                 <Text>Описание</Text>
 
@@ -137,7 +139,7 @@ const TaskPopup: React.FC<TaskPopupProps> = ({
 
                     {isDescriptionEditMode
 
-                        ? <InputDescription placeholder={value || "Ведите подробное описание"}
+                        ? <InputDescription placeholder={"Ведите подробное описание"}
                                             value={description}
                                             onChange={handleChangeInputDescription} autoFocus={true}/>
 
@@ -181,6 +183,7 @@ const TaskPopup: React.FC<TaskPopupProps> = ({
                                             commentId={comment.id}
                                             handleDeleteComment={handleDeleteComment}
                                             handleEditComment={handleEditComment}
+                                            key={comment.id}
 
                                         />
                                     )

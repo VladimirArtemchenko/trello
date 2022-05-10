@@ -50,12 +50,17 @@ const Column: React.FC<ColumnProps> = ({
     }
 
     const handleEditColumn = () => {
+        if (title !== '') {
+            handleChangeColumn(columnId, title)
+        }else{
+            handleChangeColumn(columnId, columnTitle)
+            setTitle(columnTitle)
+        }
         setEditActive(!isEditActive)
     };
 
     const handleChangeTitle = ({target}: React.ChangeEvent<HTMLInputElement>) => {
-        setTitle(target.value)
-        handleChangeColumn(columnId, target.value)
+            setTitle(target.value)
     }
 
     const handleDeleteColumnButton = () => {
@@ -96,7 +101,8 @@ const Column: React.FC<ColumnProps> = ({
                             <Task
                                 handleChangeCardText={handleChangeCardText}
                                 handleDeleteCard={handleDeleteCard}
-                                card={card}
+                                cardId={card.id}
+                                cardText={card.text}
                                 key={card.id}
                                 comments={comments}
                                 handleShowTaskModal={handleShowTaskModal}
