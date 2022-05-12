@@ -84,7 +84,7 @@ const Column: React.FC<ColumnProps> = ({
 
             </Flex>
 
-            <Tasks $taskCount={filteredTodoList.length}>
+            <Tasks>
                 {filteredTodoList.map((card) => {
 
                         return (
@@ -188,7 +188,7 @@ const DeleteColumnButton = styled.button`
   &:hover {
     opacity: 0.4;
 `;
-const Tasks = styled.div<{ $taskCount: number }>`
+const Tasks = styled.div`
   margin-top: 10px;
   width: 100%;
   gap: 10px;
@@ -196,7 +196,4 @@ const Tasks = styled.div<{ $taskCount: number }>`
   border-radius: 10px;
   max-height: 700px;
   overflow-y: auto
-}
-
-;
 `;
