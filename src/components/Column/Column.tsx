@@ -10,12 +10,13 @@ export interface ColumnProps {
     handleDeleteColumn: (columnId: string) => void
     handleChangeCardText: (cardId: string, text: string) => void
     handleDeleteCard: (cardId: string) => void
-    handleCreateTask:(columnId:string,taskTitle:string)=>void
+    handleCreateTask: (columnId: string, taskTitle: string) => void
     columnTitle: string
     columnId: string
     todoList: CardType[]
     comments: CommentType[]
 };
+
 
 const Column: React.FC<ColumnProps> = ({
                                            handleChangeColumn,
@@ -45,14 +46,14 @@ const Column: React.FC<ColumnProps> = ({
     }
 
     const handleNewTaskButton = () => {
-        handleCreateTask(columnId,taskTitle)
-            setTaskTitle('');
+        handleCreateTask(columnId, taskTitle)
+        setTaskTitle('');
     }
 
     const handleEditColumn = () => {
         if (title !== '') {
             handleChangeColumn(columnId, title)
-        }else{
+        } else {
             handleChangeColumn(columnId, columnTitle)
             setTitle(columnTitle)
         }
@@ -60,17 +61,15 @@ const Column: React.FC<ColumnProps> = ({
     };
 
     const handleChangeTitle = ({target}: React.ChangeEvent<HTMLInputElement>) => {
-            setTitle(target.value)
+        setTitle(target.value)
     }
 
     const handleDeleteColumnButton = () => {
         handleDeleteColumn(columnId)
     }
 
-
     return (
         <Root>
-
             <Flex>
 
                 {isEditActive
@@ -85,16 +84,7 @@ const Column: React.FC<ColumnProps> = ({
 
             </Flex>
 
-            <Flex>
-
-                <NewTask onChange={handleChange} value={taskTitle} name={taskTitle}/>
-
-                <NewTaskButton onClick={handleNewTaskButton}>Add</NewTaskButton>
-
-            </Flex>
-
-            <Columns>
-
+            <Tasks $taskCount={filteredTodoList.length}>
                 {filteredTodoList.map((card) => {
 
                         return (
@@ -110,9 +100,14 @@ const Column: React.FC<ColumnProps> = ({
                         )
                     }
                 )}
+            </Tasks>
+            <Flex>
 
-            </Columns>
+                <NewTask onChange={handleChange} value={taskTitle} name={taskTitle}/>
 
+                <NewTaskButton onClick={handleNewTaskButton}>Add</NewTaskButton>
+
+            </Flex>
         </Root>
     )
 }
@@ -121,8 +116,11 @@ export default Column
 
 const Root = styled.div`
   display: flex;
+  padding: 10px;
+  box-sizing: border-box;
   flex-direction: column;
   width: 300px;
+  border-radius: 10px;
 `;
 const Title = styled.h1`
   width: 80%;
@@ -133,24 +131,34 @@ const Title = styled.h1`
   cursor: pointer;
 `;
 const NewTaskButton = styled.button`
+  padding: 0px;
   font-size: 18px;
   border: none;
   border-radius: 5px;
-  background: white;
+  background: lightgray;
   height: 30px;
   width: 50px;
   cursor: pointer;
+  color: #010140;
+
+  &:hover {
+    opacity: 0.4;
 `;
 const NewTask = styled.input`
   height: 30px;
   border: none;
   border-radius: 5px;
   width: 80%;
+  border: none;
+
+  &:focus {
+    outline: solid 2px cornflowerblue;
 `;
 const Flex = styled.div`
   display: flex;
   width: 100%;
   gap: 10px;
+  margin-top: 10px;
   align-items: center;
   justify-content: space-between;
 `;
@@ -160,6 +168,10 @@ const EditTitle = styled.input`
   font-size: 30px;
   margin: 0 0 5px 0;
   padding: 0;
+  border: none;
+
+  &:focus {
+    outline: solid 2px cornflowerblue;
 `;
 const DeleteColumnButton = styled.button`
   padding: 0;
@@ -171,9 +183,20 @@ const DeleteColumnButton = styled.button`
   width: 30px;
   height: 30px;
   cursor: pointer;
+  color: #010140;
+
+  &:hover {
+    opacity: 0.4;
 `;
-const Columns = styled.div`
+const Tasks = styled.div<{ $taskCount: number }>`
+  margin-top: 10px;
   width: 100%;
   gap: 10px;
   justify-content: space-between;
+  border-radius: 10px;
+  max-height: 700px;
+  overflow-y: auto
+}
+
+;
 `;

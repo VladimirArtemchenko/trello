@@ -57,8 +57,8 @@ const Container = styled.div`
   align-items: center;
   justify-content: center;
   width: 300px;
-  height: 300px;
-  background: white;
+  height: 200px;
+  background: lightgrey;
   border-radius: 20px;
 `;
 
@@ -67,7 +67,9 @@ const Name = styled.input`
   height: 30px;
   border: none;
   border-radius: 5px;
-
+  border: none;
+  &:focus {
+    outline: solid 2px cornflowerblue;
   &::placeholder {
     text-align: center;
   }
@@ -76,7 +78,10 @@ const ConfirmButton = styled.button`
   font-size: 18px;
   border: none;
   border-radius: 5px;
-  background: white;
+  background: lightgrey;
   height: 30px;
   margin-top: 20px;
+  color: #010140;
+  &:hover {
+    opacity: 0.4;
 `;

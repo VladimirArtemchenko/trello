@@ -4,8 +4,6 @@ import {CardType, ColumnInterface, CommentType} from "../../interfaces";
 import trashIcon from "../../images/trash.svg";
 import {Comments} from "../index";
 
-const WINDOW_HEIGHT = `${window.innerHeight}px`;
-
 export interface TaskPopupProps {
     userName: string
     onSetCurrentCardId: (value: string) => void
@@ -14,9 +12,9 @@ export interface TaskPopupProps {
     handleChangeDescription: (cardId: string, description: string) => void
     handleAddComment: (cardId: string, commentText: string) => void
     handleDeleteComment: (commentId: string) => void
-    handleEditComment:(commentId: string,commentText:string) => void
+    handleEditComment: (commentId: string, commentText: string) => void
     currentCardText: string
-    currentCardDescription:string
+    currentCardDescription: string
     currentColumnTitle: string
     currentComments: CommentType[]
 }
@@ -57,9 +55,9 @@ const TaskPopup: React.FC<TaskPopupProps> = ({
     }
 
     const handleTitle = () => {
-        if (title !=='' ) {
+        if (title !== '') {
             handleChangeCardText(currentCardId, title)
-        }else{
+        } else {
             handleChangeCardText(currentCardId, currentCardText)
             setTitle(currentCardText)
         }
@@ -112,8 +110,8 @@ const TaskPopup: React.FC<TaskPopupProps> = ({
     }
 
     const handleCommentButton = () => {
-        handleAddComment(currentCardId,comment)
-            setComment('');
+        handleAddComment(currentCardId, comment)
+        setComment('');
     }
 
     const cancelCommentEdit = () => {
@@ -122,7 +120,7 @@ const TaskPopup: React.FC<TaskPopupProps> = ({
 
 
     return (
-        <Root $height={WINDOW_HEIGHT} onClick={handleCloseModal}>
+        <Root onClick={handleCloseModal}>
 
             <Container onClick={event => event.stopPropagation()}>
 
@@ -134,9 +132,7 @@ const TaskPopup: React.FC<TaskPopupProps> = ({
                     : <Title onClick={handleEditTitle}>{title}</Title>
                 }
 
-                <Text> в колонке </Text>
-
-                <Text>{currentColumnTitle}</Text>
+                <Text> в колонке: {currentColumnTitle}</Text>
 
                 <Text>Описание</Text>
 
@@ -177,24 +173,24 @@ const TaskPopup: React.FC<TaskPopupProps> = ({
 
                 </Flex>
 
-                <CommentsContainer $commentsCount={currentComments.length}>
+                <CommentsContainer>
 
-                        <div>
-                            {currentComments.map((comment) => {
-                                    return (
-                                        <Comments
-                                            userName={userName}
-                                            commentText={comment.commentText}
-                                            commentId={comment.id}
-                                            handleDeleteComment={handleDeleteComment}
-                                            handleEditComment={handleEditComment}
-                                            key={comment.id}
+                    <div>
+                        {currentComments.map((comment) => {
+                                return (
+                                    <Comments
+                                        userName={userName}
+                                        commentText={comment.commentText}
+                                        commentId={comment.id}
+                                        handleDeleteComment={handleDeleteComment}
+                                        handleEditComment={handleEditComment}
+                                        key={comment.id}
 
-                                        />
-                                    )
-                                }
-                            )}
-                        </div>
+                                    />
+                                )
+                            }
+                        )}
+                    </div>
 
                 </CommentsContainer>
 
@@ -206,10 +202,10 @@ const TaskPopup: React.FC<TaskPopupProps> = ({
 
 export default TaskPopup
 
-const Root = styled.div<{ $height: string }>`
+const Root = styled.div`
   position: fixed;
   width: 100%;
-  min-height: ${props => props.$height};
+  height: 100%;
   left: 0;
   top: 0;
   background: rgba(0, 0, 0, 0.4);
@@ -223,32 +219,42 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   width: 60%;
-  height: 700px;
-  background: white;
+  min-height: 300px;
+  max-height: 700px;
+  background:   rgba(211,211,211,1);
   border-radius: 20px;
   margin: 50px;
 `;
 
 const Title = styled.h1`
-  background: aliceblue;
+  background: lightgrey;
   border-radius: 5px;
   width: 80%;
+  max-height: 100px;
   text-align: center;
   font-size: 30px;
   margin-top: 50px;
   word-wrap: break-word;
+  overflow-y: auto;
   cursor: pointer;
 
 `;
 const InputTitle = styled.input`
   text-align: center;
   font-size: 30px;
+  height: 30px;
   margin-top: 50px;
+  border: none;
+  border-radius: 5px;
+
+  &:focus {
+    outline: solid 2px cornflowerblue;
 `;
 const Text = styled.h2`
   text-align: center;
   font-size: 24px;
   margin-top: 10px;
+  cursor: default;
 `;
 const Description = styled.p`
   resize: none;
@@ -256,9 +262,10 @@ const Description = styled.p`
   margin: 10px;
   width: 90%;
   min-height: 50px;
+  max-height: 150px;
   word-wrap: break-word;
   cursor: pointer;
-
+  overflow-y: auto;
 `;
 const InputDescription = styled.textarea`
   resize: none;
@@ -267,12 +274,22 @@ const InputDescription = styled.textarea`
   width: 90%;
   min-height: 50px;
   word-wrap: break-word;
+  border: none;
+  border-radius: 5px;
+
+  &:focus {
+    outline: solid 2px cornflowerblue;
 `;
 const CommentInput = styled.input`
   text-align: center;
   font-size: 18px;
-  margin-top: 10px;
+  height: 30px;
   width: 100%;
+  border: none;
+  border-radius: 5px;
+  
+  &:focus {
+    outline: solid 2px cornflowerblue;
 `;
 const CommentButton = styled.button`
   padding: 0;
@@ -281,7 +298,12 @@ const CommentButton = styled.button`
   border-radius: 5px;
   width: 80px;
   height: 30px;
+  background: darkgray;
+  color: #010140;
   cursor: pointer;
+
+  &:hover {
+    opacity: 0.4;
 `;
 const Flex = styled.div`
   margin-top: 20px;
@@ -308,6 +330,9 @@ const DeleteDescriptionButton = styled.button`
   width: 30px;
   height: 30px;
   cursor: pointer;
+
+  &:hover {
+    opacity: 0.4;
 `;
 const EditButton = styled.button`
   padding: 0;
@@ -318,21 +343,31 @@ const EditButton = styled.button`
   width: 50px;
   height: 30px;
   cursor: pointer;
+  background: darkgray;
+  color: #010140;
+
+  &:hover {
+    opacity: 0.4;
 `;
 const CancelButton = styled.button`
   padding: 0;
   margin: 5px;
+  background: darkgray;
   font-size: 14px;
   border: none;
   border-radius: 5px;
   width: 50px;
   height: 30px;
   cursor: pointer;
+  color: #010140;
+
+  &:hover {
+    opacity: 0.4;
 `;
-const CommentsContainer = styled.div<{ $commentsCount: number }>`
+const CommentsContainer = styled.div`
   margin-top: 20px;
-  margin-bottom:20px ;
-  overflow-y: ${props => (props.$commentsCount*50) > 300 ? "scroll" : "auto"};
-  width: 100%;
-  height: 300px;
+  margin-bottom: 20px;
+  overflow-y: auto;
+  width: 90%;
+  max-height: 300px;
 `;

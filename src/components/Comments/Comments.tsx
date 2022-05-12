@@ -7,7 +7,7 @@ export interface CommentsProps {
     commentText: string
     commentId: string
     handleDeleteComment: (commentId: string) => void
-    handleEditComment:(commentId: string,commentText:string) => void
+    handleEditComment: (commentId: string, commentText: string) => void
 
 };
 
@@ -26,12 +26,12 @@ const Comments: React.FC<CommentsProps> = ({
         handleDeleteComment(commentId)
     }
 
-    const handleEditButton =()=>{
+    const handleEditButton = () => {
         setCommentEditMode(!isCommentEditMode)
     }
 
     const handleSaveButton = () => {
-        handleEditComment(commentId,commentValue)
+        handleEditComment(commentId, commentValue)
         setCommentEditMode(!isCommentEditMode)
     }
 
@@ -51,7 +51,7 @@ const Comments: React.FC<CommentsProps> = ({
 
                 {isCommentEditMode
 
-                    ? <CommentEditInput onChange={handleChangeEditComment} value={commentValue}  autoFocus={true}/>
+                    ? <CommentEditInput onChange={handleChangeEditComment} value={commentValue} autoFocus={true}/>
 
                     : <Comment onClick={handleEditButton}>{userName} : {commentText}</Comment>
                 }
@@ -85,28 +85,31 @@ const Comments: React.FC<CommentsProps> = ({
 export default Comments
 
 const Root = styled.div`
-  width: 100%;
+  margin: 0 15% 0 15%;
+  width: 70%;
   display: flex;
   flex-direction: column;
   align-items: center;
 `;
 const Flex = styled.div`
   display: flex;
-  width: 80%;
+  width: 100%;
   gap: 10px;
   align-items: center;
   margin-top: 10px;
 `;
 const CommentEditInput = styled.input`
-  width: 70%;
+  width: 100%;
+  height: 30px;
   font-size: 18px;
   word-wrap: break-word;
   border-radius: 10px;
-  border: solid 1px black;
   box-sizing: border-box;
-  margin: 5px 0 0 0;
   padding: 0;
+  border: none;
 
+  &:focus {
+    outline: solid 2px cornflowerblue;
 `;
 const DeleteCommentButton = styled.button`
   padding: 0;
@@ -120,11 +123,11 @@ const DeleteCommentButton = styled.button`
   cursor: pointer;
 `;
 const Comment = styled.p`
-  width: 70%;
+  width: 100%;
   min-height: 50px;
   font-size: 18px;
   word-wrap: break-word;
-  margin: 5px 0 0 0;
+  padding: 5px;
   border-radius: 10px;
   box-sizing: border-box;
   background: darkgray;
@@ -138,7 +141,12 @@ const EditButton = styled.button`
   border-radius: 5px;
   width: 50px;
   height: 30px;
+  background: darkgray;
+  color: #010140;
   cursor: pointer;
+
+  &:hover {
+    opacity: 0.4;
 `;
 const SaveButton = styled.button`
   padding: 0;
@@ -148,7 +156,12 @@ const SaveButton = styled.button`
   border-radius: 5px;
   width: 50px;
   height: 30px;
+  background: darkgray;
+  color: #010140;
   cursor: pointer;
+
+  &:hover {
+    opacity: 0.4;
 `;
 const CancelButton = styled.button`
   padding: 0;
@@ -158,7 +171,12 @@ const CancelButton = styled.button`
   border-radius: 5px;
   width: 50px;
   height: 30px;
+  background: darkgray;
+  color: #010140;
   cursor: pointer;
+
+  &:hover {
+    opacity: 0.4;
 `;
 const Container = styled.div`
   display: flex;

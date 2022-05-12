@@ -1,6 +1,7 @@
 import React, {useMemo, useState} from "react";
 import styled from "styled-components";
 import trashIcon from "../../images/trash.svg";
+import commentsIcon from "../../images/commentsIcon.png";
 import {CommentType} from "../../interfaces";
 
 export interface TaskProps {
@@ -52,7 +53,7 @@ const Task: React.FC<TaskProps> = ({
     }
 
 
-    const handleCanceleTaskEditing = (event:React.MouseEvent<HTMLButtonElement>) => {
+    const handleCancelTaskEditing = (event:React.MouseEvent<HTMLButtonElement>) => {
         setTaskActive(true)
     }
 
@@ -88,7 +89,7 @@ const Task: React.FC<TaskProps> = ({
 
                             <SaveButton onClick={handleSaveTask}>Save</SaveButton>
 
-                            <CancelButton onClick={handleCanceleTaskEditing}>Cancel</CancelButton>
+                            <CancelButton onClick={handleCancelTaskEditing}>Cancel</CancelButton>
 
                         </Container>
                     }
@@ -97,9 +98,10 @@ const Task: React.FC<TaskProps> = ({
                 </FlexColumn>
 
             </Flex>
-
-            <Comments>Comments:{filteredComments.length}</Comments>
-
+            <Flex>
+                <CommentsIcon></CommentsIcon>
+            <Comments>{filteredComments.length}</Comments>
+                </Flex>
         </Root>
     )
 }
@@ -107,9 +109,10 @@ const Task: React.FC<TaskProps> = ({
 export default Task
 
 const Root = styled.div`
-  width: 300px;
+  width: 260px;
+  padding: 5px;
   box-sizing: border-box;
-  border: solid 1px gray;
+  background: rgba(221,221,221,0.4);
   border-radius: 10px;
   margin-top: 10px;
 `;
@@ -132,6 +135,7 @@ const Flex = styled.div`
   display: flex;
   gap: 10px;
   justify-content: space-between;
+  align-items: center;
 `;
 const FlexColumn = styled.div`
   display: flex;
@@ -148,6 +152,9 @@ const EditTask = styled.input`
   word-wrap: break-word;
   margin: 5px 0 0 0;
   padding: 0;
+  border:none;
+  &:focus {
+    outline:  solid 2px cornflowerblue;
 `;
 const DeleteTaskButton = styled.button`
   padding: 0;
@@ -156,9 +163,12 @@ const DeleteTaskButton = styled.button`
   font-size: 14px;
   border: none;
   border-radius: 5px;
-  width: 50px;
-  height: 50px;
+  width: 30px;
+  height: 30px;
   cursor: pointer;
+  color: #010140;
+  &:hover {
+    opacity: 0.4;
 `;
 const EditButton = styled.button`
   padding: 0;
@@ -166,29 +176,46 @@ const EditButton = styled.button`
   font-size: 14px;
   border: none;
   border-radius: 5px;
+  background: lightgray;
   width: 50px;
   height: 30px;
   cursor: pointer;
+  color: #010140;
+  &:hover {
+    opacity: 0.4;
 `;
 const SaveButton = styled.button`
   padding: 0;
   margin: 5px;
   font-size: 14px;
+  background: lightgray;
   border: none;
   border-radius: 5px;
   width: 50px;
   height: 30px;
   cursor: pointer;
+  color: #010140;
+  &:hover {
+    opacity: 0.4;
 `;
 const CancelButton = styled.button`
   padding: 0;
   margin: 5px;
   font-size: 14px;
   border: none;
+  background: lightgray;
   border-radius: 5px;
   width: 50px;
   height: 30px;
   cursor: pointer;
+  color: #010140;
+  &:hover {
+    opacity: 0.4;
 `;
 const Container = styled.div`
+`;
+const CommentsIcon = styled.div`
+  background: center/100% url(${commentsIcon}) no-repeat;
+  width: 20px;
+  height: 20px;
 `;

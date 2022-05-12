@@ -18,6 +18,7 @@ const App: React.FC = () => {
     const [columns, setColumns] = useStateWithLocalStorage<ColumnInterface[]>("columns", initialColumnsName)
     const [todoList, setTodoList] = useStateWithLocalStorage<CardType[]>("todoList", [])
     const [comments, setComments] = useStateWithLocalStorage<CommentType[]>("comments", [])
+    const [isEdit, setIsEdit] = useState(true)
     const [columnTitle, setColumnTitle] = useState('');
     const [currentCardId, setCurrentCardId] = useState<string>()
 
@@ -30,6 +31,7 @@ const App: React.FC = () => {
             setColumns([...columns, {id: uuidv4(), columnName: columnTitle}])
             setColumnTitle('')
         }
+        setIsEdit(true)
     }
 
     const handleChangeColumn = (columnId: string, columnName: string) => {
@@ -64,6 +66,7 @@ const App: React.FC = () => {
             column.id === currentCard?.columnId),
         [columns, currentCard]
     )
+    const isCardPopupOpen = currentCardId && currentCard && currentColumn
 
     const handleCreateTask = (columnId: string, taskTitle: string) => {
         if (taskTitle) {
@@ -103,8 +106,12 @@ const App: React.FC = () => {
         setComments([...newComments]);
     }
 
-    const isCardPopupOpen = currentCardId && currentCard && currentColumn
-
+    const handleNewButton = () => {
+        setIsEdit(false)
+    }
+    const handleCancelButton = () => {
+        setIsEdit(true)
+    }
 
     return (
 
@@ -113,14 +120,6 @@ const App: React.FC = () => {
             {userName
 
                 ? <div>
-
-                    <CentredFlex>
-
-                        <NewColumn type="text" onChange={handleChange} value={columnTitle}/>
-
-                        <NewColumnButton onClick={handleCreateColumn}>Add Board</NewColumnButton>
-
-                    </CentredFlex>
 
                     <Columns $columnsCount={columns.length}>
 
@@ -143,7 +142,17 @@ const App: React.FC = () => {
                                 />
                             )
                         })}
-
+                        {isEdit
+                            ?
+                            <AddButton onClick={handleNewButton}>+ Добавить еще колонку</AddButton>
+                            : <CentredFlex>
+                                < NewColumn type="text" onChange={handleChange} value={columnTitle} autoFocus={true}/>
+                                <Flex>
+                                    <NewColumnButton onClick={handleCreateColumn}>Add Board</NewColumnButton>
+                                    <CancelButton onClick={handleCancelButton}>X</CancelButton>
+                                </Flex>
+                            </CentredFlex>
+                        }
                     </Columns>
 
                 </div>
@@ -188,31 +197,71 @@ const Root = styled.div`
 const Columns = styled.div<{ $columnsCount: number }>`
   display: flex;
   width: ${({$columnsCount}) =>
-          `${320 * $columnsCount}px`};
+          `${320 * ($columnsCount+1)}px`};
   box-sizing: border-box;
   gap: 20px;
 `;
 const NewColumn = styled.input`
-  width: 400px;
+  width: 280px;
   height: 30px;
-  border: none;
   border-radius: 10px;
+  border:none;
+  &:focus {
+    outline:  solid 2px cornflowerblue;
+  }
 `;
-
+const AddButton = styled.button`
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  width: 300px;
+  height: 40px;
+  margin-top: 5px;
+  cursor: pointer;
+  background: lightgray;
+  color: #010140;
+  &:hover {
+    opacity: 0.4;
+`;
 const NewColumnButton = styled.button`
   font-size: 18px;
   border: none;
-  border-radius: 10px;
-  background: white;
-  width: 150px;
+  border-radius: 5px;
+  width: 100px;
   height: 30px;
-  margin-top: 20px;
+  margin-top: 5px;
   cursor: pointer;
+  background: cornflowerblue;
+  color: #010140;
+  &:hover {
+    opacity: 0.4;
+`;
+const CancelButton = styled.button`
+  font-size: 32px;
+  border: none;
+  color: cornflowerblue;
+  width: 40px;
+  height: 40px;
+  margin-top: 5px;
+  cursor: pointer;
+  background: none;
+  &:hover {
+    opacity: 0.4;
 `;
 const CentredFlex = styled.div`
+  padding: 5px;
+  box-sizing: border-box;
+  border-radius: 10px;
+  border: none;
+  width: 300px;
+  height: 100px;
+  background: lightgray;
   flex-direction: column;
   display: flex;
+  margin-bottom: 5px;
+`
+const Flex = styled.div`
+  display: flex;
+  gap: 20px;
   align-items: center;
-  justify-content: center;
-  margin-bottom: 10px;
 `
