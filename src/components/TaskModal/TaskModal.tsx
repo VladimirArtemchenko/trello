@@ -3,6 +3,7 @@ import styled from "styled-components";
 import {CardType, ColumnInterface, CommentType} from "../../interfaces";
 import trashIcon from "../../images/trash.svg";
 import {Comments} from "../index";
+import {useForm} from "react-hook-form";
 
 export interface TaskPopupProps {
     userName: string
@@ -34,13 +35,16 @@ const TaskPopup: React.FC<TaskPopupProps> = ({
                                                  currentComments,
                                              }) => {
 
-    const [title, setTitle] = useState(currentCardText);
-    const [description, setDescription] = useState(currentCardDescription);
-    const [value, setValue] = useState(currentCardDescription);
-    const [comment, setComment] = useState('');
-    const [inputCommentValue, setInputCommentValue] = useState<string>('');
+    const {register, handleSubmit, setValue} = useForm({
+        defaultValues: {
+            taskTitle: currentCardText,
+            description: currentCardDescription,
+            comment: ''
+        }
+    });
     const [isDescriptionEditMode, setDescriptionEditMode] = useState<boolean>(false);
     const [isTitleEditMode, setTitleEditMode] = useState<boolean>(false);
+    const [isCommentEditMode, setCommentEditMode] = useState<boolean>(false);
 
     const handleCloseModal = () => {
         onSetCurrentCardId('');
@@ -50,16 +54,11 @@ const TaskPopup: React.FC<TaskPopupProps> = ({
         setTitleEditMode(!isTitleEditMode)
     }
 
-    const handleChangeTitle = ({target}: React.ChangeEvent<HTMLInputElement>) => {
-        setTitle(target.value)
-    }
-
-    const handleTitle = () => {
-        if (title !== '') {
-            handleChangeCardText(currentCardId, title)
+    const handleChangeTitle = (data: { taskTitle: string; }) => {
+        if (data.taskTitle !== '') {
+            handleChangeCardText(currentCardId, data.taskTitle)
         } else {
-            handleChangeCardText(currentCardId, currentCardText)
-            setTitle(currentCardText)
+            setValue("taskTitle", currentCardText)
         }
         setTitleEditMode(!isTitleEditMode)
     }
@@ -80,42 +79,38 @@ const TaskPopup: React.FC<TaskPopupProps> = ({
     }, []);
 
     const handleEditDescription = () => {
-        setDescription(value)
         setDescriptionEditMode(!isDescriptionEditMode)
     }
 
-    const handleChangeInputDescription = ({target}: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setDescription(target.value)
-    }
-
-    const handleEditButton = () => {
-        handleChangeDescription(currentCardId, description)
-        setValue(description)
+    const handleEditButton = (data: { description: string; }) => {
+        handleChangeDescription(currentCardId, data.description)
         setDescriptionEditMode(!isDescriptionEditMode)
     }
 
     const cancelDescriptionEdit = () => {
-        setDescription(value)
         setDescriptionEditMode(!isDescriptionEditMode)
     }
 
     const handleDeleteButton = () => {
         handleChangeDescription(currentCardId, '')
-        setValue('')
+        setValue("description", '')
     }
 
-    const handleChangeComment = ({target}: React.ChangeEvent<HTMLInputElement>) => {
-        setComment(target.value)
-        setInputCommentValue(target.value)
+    const handleCommentButton = (data: { comment: string; }) => {
+        if (data.comment !== '') {
+            handleAddComment(currentCardId, data.comment)
+            setValue('comment', '');
+        }
+        setCommentEditMode(false)
     }
 
-    const handleCommentButton = () => {
-        handleAddComment(currentCardId, comment)
-        setComment('');
+    const handleCommentEdit = () => {
+        setCommentEditMode(true)
     }
 
-    const cancelCommentEdit = () => {
-        setInputCommentValue('')
+    const handleCancelCommentEdit = () => {
+        setValue('comment', '')
+        setCommentEditMode(false)
     }
 
 
@@ -126,10 +121,9 @@ const TaskPopup: React.FC<TaskPopupProps> = ({
 
                 {isTitleEditMode
 
-                    ? <InputTitle value={title} onChange={handleChangeTitle}
-                                  onBlur={handleTitle} autoFocus={true}/>
+                    ? <InputTitle type='text' {...register("taskTitle")} onBlur={handleSubmit(handleChangeTitle)} autoFocus={true}/>
 
-                    : <Title onClick={handleEditTitle}>{title}</Title>
+                    : <Title onClick={handleEditTitle}>{currentCardText}</Title>
                 }
 
                 <Text> в колонке: {currentColumnTitle}</Text>
@@ -140,38 +134,53 @@ const TaskPopup: React.FC<TaskPopupProps> = ({
 
                     {isDescriptionEditMode
 
-                        ? <InputDescription placeholder={"Ведите подробное описание"}
-                                            value={description}
-                                            onChange={handleChangeInputDescription} autoFocus={true}/>
+                        ? <InputDescription {...register("description")} placeholder={"Ведите подробное описание"}
+                                            autoFocus={true}/>
 
                         : <Description
-                            onClick={handleEditDescription}>{value || "Ведите подробное описание"}</Description>
+                            onClick={handleEditDescription}>{currentCardDescription || "Введите подробное описание"}</Description>
                     }
 
-                    <FlexColumn>
+                    {isDescriptionEditMode
 
-                        <EditButton type="submit" onClick={handleEditButton}>Add</EditButton>
+                        ? <FlexColumn>
 
-                        {isDescriptionEditMode
+                            <Button type="submit" onClick={handleSubmit(handleEditButton)}>Add</Button>
+                            <Button type="button" onClick={cancelDescriptionEdit}>Cancel</Button>
 
-                            ? <CancelButton type="button" onClick={cancelDescriptionEdit}>Cancel</CancelButton>
+                        </FlexColumn>
 
-                            : <DeleteDescriptionButton onClick={handleDeleteButton}/>
-                        }
+                        : <DeleteButton onClick={handleDeleteButton}/>
+                    }
 
-                    </FlexColumn>
-
-
-                </Flex>
-
-                <Flex>
-
-                    <CommentInput type={"text"} placeholder={"Введите свой коментарий"} onChange={handleChangeComment}
-                                  value={inputCommentValue} onBlur={cancelCommentEdit}/>
-
-                    <CommentButton type="submit" onClick={handleCommentButton}>Comment</CommentButton>
 
                 </Flex>
+
+
+                {isCommentEditMode
+
+                    ? <CommentContainer>
+
+                        <CommentInput {...register("comment")} placeholder={"Введите свой коментарий"}
+                                      onFocus={handleCommentEdit}/>
+
+                        <Flex>
+
+                            <Button type="submit" onClick={handleSubmit(handleCommentButton)}>Comment</Button>
+                            <Button type="button" onClick={handleCancelCommentEdit}>Cancel</Button>
+
+                        </Flex>
+
+                    </CommentContainer>
+
+                    : <CommentContainer>
+
+                        <CommentInput {...register("comment")} placeholder={"Введите свой коментарий"}
+                                      onFocus={handleCommentEdit}/>
+
+                    </CommentContainer>
+
+                }
 
                 <CommentsContainer>
 
@@ -215,15 +224,17 @@ const Root = styled.div`
 `;
 
 const Container = styled.div`
+  padding-top: 20px;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 10px;
   width: 60%;
   min-height: 300px;
   max-height: 700px;
-  background:   rgba(211,211,211,1);
+  background: rgba(211, 211, 211, 1);
   border-radius: 20px;
-  margin: 50px;
 `;
 
 const Title = styled.h1`
@@ -233,7 +244,6 @@ const Title = styled.h1`
   max-height: 100px;
   text-align: center;
   font-size: 30px;
-  margin-top: 50px;
   word-wrap: break-word;
   overflow-y: auto;
   cursor: pointer;
@@ -243,7 +253,6 @@ const InputTitle = styled.input`
   text-align: center;
   font-size: 30px;
   height: 30px;
-  margin-top: 50px;
   border: none;
   border-radius: 5px;
 
@@ -269,8 +278,9 @@ const Description = styled.p`
 `;
 const InputDescription = styled.textarea`
   resize: none;
+  padding: 0;
+  margin: 0;
   font-size: 18px;
-  margin: 10px;
   width: 90%;
   min-height: 50px;
   word-wrap: break-word;
@@ -287,43 +297,39 @@ const CommentInput = styled.input`
   width: 100%;
   border: none;
   border-radius: 5px;
-  
+
   &:focus {
     outline: solid 2px cornflowerblue;
 `;
-const CommentButton = styled.button`
-  padding: 0;
-  font-size: 18px;
-  border: none;
-  border-radius: 5px;
-  width: 80px;
-  height: 30px;
-  background: darkgray;
-  color: #010140;
-  cursor: pointer;
-
-  &:hover {
-    opacity: 0.4;
-`;
-const Flex = styled.div`
-  margin-top: 20px;
-  width: 70%;
+const Flex = styled.form`
+  width: 80%;
   display: flex;
-  gap: 10px;
+  gap: 5px;
   align-items: center;
+  justify-content: center;
 `;
 
 const FlexColumn = styled.div`
   display: flex;
   flex-direction: column;
+  gap: 5px;
+
+  justify-content: center;
+  align-items: center;
+`;
+const CommentContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 80%;
+  min-height: 70px;
   gap: 10px;
   justify-content: center;
   align-items: center;
 `;
-const DeleteDescriptionButton = styled.button`
+const DeleteButton = styled.button`
   padding: 0;
   margin: 0;
-  background: center/100% url(${trashIcon});
+  background: center/100% url(${trashIcon}) no-repeat;
   font-size: 18px;
   border: none;
   border-radius: 5px;
@@ -334,40 +340,23 @@ const DeleteDescriptionButton = styled.button`
   &:hover {
     opacity: 0.4;
 `;
-const EditButton = styled.button`
-  padding: 0;
-  margin: 5px;
-  font-size: 14px;
-  border: none;
-  border-radius: 5px;
-  width: 50px;
-  height: 30px;
-  cursor: pointer;
-  background: darkgray;
-  color: #010140;
-
-  &:hover {
-    opacity: 0.4;
-`;
-const CancelButton = styled.button`
-  padding: 0;
-  margin: 5px;
-  background: darkgray;
-  font-size: 14px;
-  border: none;
-  border-radius: 5px;
-  width: 50px;
-  height: 30px;
-  cursor: pointer;
-  color: #010140;
-
-  &:hover {
-    opacity: 0.4;
-`;
 const CommentsContainer = styled.div`
-  margin-top: 20px;
   margin-bottom: 20px;
   overflow-y: auto;
   width: 90%;
   max-height: 300px;
+`;
+
+const Button = styled.button`
+  font-size: 20px;
+  padding: 0;
+  border: none;
+  color: #010140;
+  width: 100px;
+  height: 20px;
+  cursor: pointer;
+  background: none;
+
+  &:hover {
+    opacity: 0.4;
 `;

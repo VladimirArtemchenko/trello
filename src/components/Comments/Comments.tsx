@@ -1,6 +1,7 @@
 import React, {useState} from "react";
 import styled from "styled-components";
 import trashIcon from "../../images/trash.svg";
+import {useForm} from "react-hook-form";
 
 export interface CommentsProps {
     userName: string
@@ -19,8 +20,8 @@ const Comments: React.FC<CommentsProps> = ({
                                                handleEditComment
                                            }) => {
 
+    const {register, handleSubmit, setValue} = useForm({defaultValues: {comment: commentText,}});
     const [isCommentEditMode, setCommentEditMode] = useState(false);
-    const [commentValue, setCommentValue] = useState(commentText);
 
     const handleDeleteButton = () => {
         handleDeleteComment(commentId)
@@ -30,17 +31,16 @@ const Comments: React.FC<CommentsProps> = ({
         setCommentEditMode(!isCommentEditMode)
     }
 
-    const handleSaveButton = () => {
-        handleEditComment(commentId, commentValue)
+    const handleSaveButton = (data: { comment: string; }) => {
+        if (data.comment!== ''){
+            handleEditComment(commentId, data.comment)
+        } else{
+            setValue("comment",commentText)
+        }
         setCommentEditMode(!isCommentEditMode)
     }
 
-    const handleChangeEditComment = ({target}: React.ChangeEvent<HTMLInputElement>) => {
-        setCommentValue(target.value)
-    }
-
     const cancelCommentEdit = () => {
-        setCommentValue(commentText)
         setCommentEditMode(!isCommentEditMode)
     }
 
@@ -51,7 +51,7 @@ const Comments: React.FC<CommentsProps> = ({
 
                 {isCommentEditMode
 
-                    ? <CommentEditInput onChange={handleChangeEditComment} value={commentValue} autoFocus={true}/>
+                    ? <CommentEditInput {...register("comment" ) } autoFocus={true}/>
 
                     : <Comment onClick={handleEditButton}>{userName} : {commentText}</Comment>
                 }
@@ -60,7 +60,7 @@ const Comments: React.FC<CommentsProps> = ({
 
                     ? <Container>
 
-                        <SaveButton onClick={handleSaveButton}>Save</SaveButton>
+                        <SaveButton onClick={handleSubmit(handleSaveButton)}>Save</SaveButton>
 
                         <CancelButton type="button" onClick={cancelCommentEdit}>Cancel</CancelButton>
 
@@ -68,7 +68,7 @@ const Comments: React.FC<CommentsProps> = ({
 
                     : <Container>
 
-                        <EditButton onClick={handleEditButton}>Edit</EditButton>
+                        {/*<EditButton onClick={handleEditButton}>Edit</EditButton>*/}
 
                         <DeleteCommentButton onClick={handleDeleteButton}/>
 

@@ -4,6 +4,7 @@ import {ColumnInterface, CommentType, CardType} from "./interfaces";
 import styled from "styled-components";
 import {v4 as uuidv4} from "uuid";
 import {useStateWithLocalStorage} from "./hooks";
+import {useForm} from "react-hook-form";
 
 const initialColumnsName = [
     {id: uuidv4(), columnName: 'To do'},
@@ -14,22 +15,18 @@ const initialColumnsName = [
 
 const App: React.FC = () => {
 
+    const {register, handleSubmit,setValue} = useForm({defaultValues: {columnTitle: ""}});
     const [userName, setUserName] = useStateWithLocalStorage<string>("userName", '')
     const [columns, setColumns] = useStateWithLocalStorage<ColumnInterface[]>("columns", initialColumnsName)
     const [todoList, setTodoList] = useStateWithLocalStorage<CardType[]>("todoList", [])
     const [comments, setComments] = useStateWithLocalStorage<CommentType[]>("comments", [])
     const [isEdit, setIsEdit] = useState(true)
-    const [columnTitle, setColumnTitle] = useState('');
     const [currentCardId, setCurrentCardId] = useState<string>()
 
-    const handleChange = ({target}: React.ChangeEvent<HTMLInputElement>) => {
-        setColumnTitle(target.value)
-    }
-
-    const handleCreateColumn = () => {
-        if (columnTitle) {
-            setColumns([...columns, {id: uuidv4(), columnName: columnTitle}])
-            setColumnTitle('')
+    const handleCreateColumn = (data: { columnTitle: string }) => {
+        if (data.columnTitle) {
+            setColumns([...columns, {id: uuidv4(), columnName: data.columnTitle}])
+            setValue("columnTitle",'')
         }
         setIsEdit(true)
     }
@@ -109,6 +106,7 @@ const App: React.FC = () => {
     const handleNewButton = () => {
         setIsEdit(false)
     }
+
     const handleCancelButton = () => {
         setIsEdit(true)
     }
@@ -145,12 +143,19 @@ const App: React.FC = () => {
                         {isEdit
                             ?
                             <AddButton onClick={handleNewButton}>+ Добавить еще колонку</AddButton>
-                            : <CentredFlex>
-                                < NewColumn type="text" onChange={handleChange} value={columnTitle} autoFocus={true}/>
+
+                            : <CentredFlex onSubmit={handleSubmit(handleCreateColumn)}>
+
+                                < NewColumn type="text" {...register("columnTitle")} autoFocus={true}/>
+
                                 <Flex>
-                                    <NewColumnButton onClick={handleCreateColumn}>Add Board</NewColumnButton>
+
+                                    <NewColumnButton type="submit">Add Board</NewColumnButton>
+
                                     <CancelButton onClick={handleCancelButton}>X</CancelButton>
+
                                 </Flex>
+
                             </CentredFlex>
                         }
                     </Columns>
@@ -248,7 +253,7 @@ const CancelButton = styled.button`
   &:hover {
     opacity: 0.4;
 `;
-const CentredFlex = styled.div`
+const CentredFlex = styled.form`
   padding: 5px;
   box-sizing: border-box;
   border-radius: 10px;

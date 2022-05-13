@@ -3,13 +3,14 @@ import styled from "styled-components";
 import trashIcon from "../../images/trash.svg";
 import commentsIcon from "../../images/commentsIcon.png";
 import {CommentType} from "../../interfaces";
+import {useForm} from "react-hook-form";
 
 export interface TaskProps {
     handleShowTaskModal: ({target}: React.MouseEvent<HTMLDivElement>) => void
     handleChangeCardText: (cardId: string, text: string) => void
     handleDeleteCard: (cardId: string) => void
     cardId: string
-    cardText:string
+    cardText: string
     comments: CommentType[]
 
 };
@@ -24,40 +25,36 @@ const Task: React.FC<TaskProps> = ({
 
                                    }) => {
 
-    const [value, setValue] = useState(cardText);
+
+    const {register, handleSubmit, setValue} = useForm({defaultValues: {taskTitle: cardText}});
     const [isTaskActive, setTaskActive] = useState(true)
 
     const filteredComments = useMemo(
-        () => comments.filter((coment) =>
-            coment.cardId === cardId),
+        () => comments.filter((comment) =>
+            comment.cardId === cardId),
         [cardId, comments]
     )
 
-    const handleEditMode = (event:React.MouseEvent<HTMLButtonElement>) => {
-        setValue(cardText)
+    const handleEditMode = (event: React.MouseEvent<HTMLButtonElement>) => {
         setTaskActive(false)
     }
 
-    const handleChangeTask = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setValue(event.target.value)
-    }
-
-    const handleSaveTask = (event:React.MouseEvent<HTMLButtonElement>) => {
-        if (value !== ''){
-            handleChangeCardText(cardId, value)
-    }else {
-            handleChangeCardText(cardId, cardText)
-            setValue(cardText)
+    const handleSaveTask = (data: { taskTitle: string; }) => {
+        if (data.taskTitle !== '') {
+            handleChangeCardText(cardId, data.taskTitle)
+        } else {
+            // handleChangeCardText(cardId, cardText)
+            setValue("taskTitle", cardText)
         }
         setTaskActive(true)
     }
 
 
-    const handleCancelTaskEditing = (event:React.MouseEvent<HTMLButtonElement>) => {
+    const handleCancelTaskEditing = (event: React.MouseEvent<HTMLButtonElement>) => {
         setTaskActive(true)
     }
 
-    const handleDeleteTask = (event:React.MouseEvent<HTMLButtonElement>) => {
+    const handleDeleteTask = (event: React.MouseEvent<HTMLButtonElement>) => {
         handleDeleteCard(cardId)
     }
 
@@ -68,15 +65,16 @@ const Task: React.FC<TaskProps> = ({
             <Flex>
 
                 {isTaskActive
+
                     ? <Text id={cardId} onClick={handleShowTaskModal}>{cardText}</Text>
 
-                    : <EditTask onChange={handleChangeTask}
-                                value={value} name={cardText} autoFocus={true}/>
+                    : <EditTask {...register("taskTitle")} autoFocus={true}/>
                 }
 
                 <FlexColumn>
 
                     {isTaskActive
+
                         ? <Container>
 
                             <EditButton onClick={handleEditMode}>Edit</EditButton>
@@ -87,7 +85,7 @@ const Task: React.FC<TaskProps> = ({
 
                         : <Container>
 
-                            <SaveButton onClick={handleSaveTask}>Save</SaveButton>
+                            <SaveButton onClick={handleSubmit(handleSaveTask)}>Save</SaveButton>
 
                             <CancelButton onClick={handleCancelTaskEditing}>Cancel</CancelButton>
 
@@ -98,10 +96,14 @@ const Task: React.FC<TaskProps> = ({
                 </FlexColumn>
 
             </Flex>
+
             <Flex>
+
                 <CommentsIcon></CommentsIcon>
-            <Comments>{filteredComments.length}</Comments>
-                </Flex>
+
+                <Comments>{filteredComments.length}</Comments>
+
+            </Flex>
         </Root>
     )
 }
@@ -112,7 +114,7 @@ const Root = styled.div`
   width: 260px;
   padding: 5px;
   box-sizing: border-box;
-  background: rgba(221,221,221,0.4);
+  background: rgba(221, 221, 221, 0.4);
   border-radius: 10px;
   margin-top: 10px;
 `;
@@ -152,9 +154,10 @@ const EditTask = styled.input`
   word-wrap: break-word;
   margin: 5px 0 0 0;
   padding: 0;
-  border:none;
+  border: none;
+
   &:focus {
-    outline:  solid 2px cornflowerblue;
+    outline: solid 2px cornflowerblue;
 `;
 const DeleteTaskButton = styled.button`
   padding: 0;
@@ -167,6 +170,7 @@ const DeleteTaskButton = styled.button`
   height: 30px;
   cursor: pointer;
   color: #010140;
+
   &:hover {
     opacity: 0.4;
 `;
@@ -181,6 +185,7 @@ const EditButton = styled.button`
   height: 30px;
   cursor: pointer;
   color: #010140;
+
   &:hover {
     opacity: 0.4;
 `;
@@ -195,6 +200,7 @@ const SaveButton = styled.button`
   height: 30px;
   cursor: pointer;
   color: #010140;
+
   &:hover {
     opacity: 0.4;
 `;
@@ -209,6 +215,7 @@ const CancelButton = styled.button`
   height: 30px;
   cursor: pointer;
   color: #010140;
+
   &:hover {
     opacity: 0.4;
 `;

@@ -3,6 +3,8 @@ import styled from "styled-components";
 import trashIcon from "../../images/trash.svg";
 import {Task} from "../index";
 import {CardType, CommentType} from "../../interfaces";
+import {useForm} from "react-hook-form";
+
 
 export interface ColumnProps {
     handleShowTaskModal: ({target}: React.MouseEvent<HTMLDivElement>) => void
@@ -31,8 +33,7 @@ const Column: React.FC<ColumnProps> = ({
                                            comments
                                        }) => {
 
-    const [taskTitle, setTaskTitle] = useState('');
-    const [title, setTitle] = useState(columnTitle);
+    const {register, handleSubmit, setValue} = useForm({defaultValues: {columnTitle: columnTitle, taskTitle: ''}});
     const [isEditActive, setEditActive] = useState(false);
 
     const filteredTodoList = useMemo(
@@ -41,27 +42,22 @@ const Column: React.FC<ColumnProps> = ({
         [columnId, todoList]
     )
 
-    const handleChange = ({target}: React.ChangeEvent<HTMLInputElement>) => {
-        setTaskTitle(target.value)
+    const handleNewTaskButton = (data: { taskTitle: string; }) => {
+        handleCreateTask(columnId, data.taskTitle)
+        setValue("taskTitle",'');
     }
 
-    const handleNewTaskButton = () => {
-        handleCreateTask(columnId, taskTitle)
-        setTaskTitle('');
-    }
-
-    const handleEditColumn = () => {
-        if (title !== '') {
-            handleChangeColumn(columnId, title)
+    const handleEditColumn = (data: { columnTitle: string }) => {
+        if (data.columnTitle !== '') {
+            handleChangeColumn(columnId, data.columnTitle)
         } else {
-            handleChangeColumn(columnId, columnTitle)
-            setTitle(columnTitle)
+           setValue('columnTitle',columnTitle)
         }
         setEditActive(!isEditActive)
     };
 
-    const handleChangeTitle = ({target}: React.ChangeEvent<HTMLInputElement>) => {
-        setTitle(target.value)
+    const handleTitleClick = () => {
+        setEditActive(!isEditActive)
     }
 
     const handleDeleteColumnButton = () => {
@@ -74,10 +70,10 @@ const Column: React.FC<ColumnProps> = ({
 
                 {isEditActive
 
-                    ? <EditTitle onChange={handleChangeTitle} onBlur={handleEditColumn}
-                                 value={title} name={columnTitle} autoFocus={true}/>
+                    ?
+                    <EditTitle type="text" {...register("columnTitle" ) } onBlur={handleSubmit(handleEditColumn)} autoFocus={true} />
 
-                    : <Title onClick={handleEditColumn}>{title}</Title>
+                    : <Title onClick={handleTitleClick}>{columnTitle}</Title>
                 }
 
                 <DeleteColumnButton onClick={handleDeleteColumnButton}/>
@@ -85,6 +81,7 @@ const Column: React.FC<ColumnProps> = ({
             </Flex>
 
             <Tasks>
+
                 {filteredTodoList.map((card) => {
 
                         return (
@@ -101,11 +98,12 @@ const Column: React.FC<ColumnProps> = ({
                     }
                 )}
             </Tasks>
+
             <Flex>
 
-                <NewTask onChange={handleChange} value={taskTitle} name={taskTitle}/>
+                <NewTask type="text"  {...register("taskTitle" ) }/>
 
-                <NewTaskButton onClick={handleNewTaskButton}>Add</NewTaskButton>
+                <NewTaskButton onClick={handleSubmit(handleNewTaskButton)}>Add</NewTaskButton>
 
             </Flex>
         </Root>
@@ -124,6 +122,8 @@ const Root = styled.div`
 `;
 const Title = styled.h1`
   width: 80%;
+  max-height: 200px;
+  overflow-y: auto;
   text-align: center;
   font-size: 30px;
   margin: 0 0 5px 0;
@@ -154,7 +154,7 @@ const NewTask = styled.input`
   &:focus {
     outline: solid 2px cornflowerblue;
 `;
-const Flex = styled.div`
+const Flex = styled.form`
   display: flex;
   width: 100%;
   gap: 10px;

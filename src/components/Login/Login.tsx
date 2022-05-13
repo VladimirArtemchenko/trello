@@ -1,5 +1,6 @@
 import React, {useState} from "react";
 import styled from "styled-components";
+import {useForm, SubmitHandler} from "react-hook-form";
 
 export interface LoginProps {
     onSetUserName: (value: string) => void;
@@ -7,29 +8,27 @@ export interface LoginProps {
 
 const Login: React.FC<LoginProps> = ({onSetUserName}) => {
 
-    const [value, setValue] = useState('');
+    const {register, handleSubmit, formState: {errors}} = useForm({defaultValues: {userName: ""}});
 
-    const handleConfirm = () => {
-
-        if (value) {
-            onSetUserName(value)
-            localStorage.setItem("userName", JSON.stringify(value))
-        }
-    }
-
-    const handleChange = ({target}: React.ChangeEvent<HTMLInputElement>) => {
-        setValue(target.value)
+    const onSubmit = (data: { userName: string; }) => {
+        onSetUserName(data.userName);
     }
 
     return (
 
         <Root>
 
-            <Container>
+            <Container onSubmit={handleSubmit(onSubmit)}>
 
-                <Name type="text" onChange={handleChange} value={value} placeholder={'Введите свое имя?'}/>
+                <label>Name</label>
 
-                <ConfirmButton type="button" onClick={handleConfirm}>Confirm</ConfirmButton>
+                <Name type="text" {...register("userName", {required: true})} defaultValue=""
+
+                      placeholder={'Введите свое имя?'}/>
+
+                {errors.userName && <p>Введите имя!</p>}
+
+                <ConfirmButton type="submit">Confirm</ConfirmButton>
 
             </Container>
 
@@ -51,7 +50,7 @@ const Root = styled.div`
   justify-content: center;
   align-items: center;
 `;
-const Container = styled.div`
+const Container = styled.form`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -68,11 +67,13 @@ const Name = styled.input`
   border: none;
   border-radius: 5px;
   border: none;
+
   &:focus {
     outline: solid 2px cornflowerblue;
-  &::placeholder {
-    text-align: center;
-  }
+
+    &::placeholder {
+      text-align: center;
+    }
 `;
 const ConfirmButton = styled.button`
   font-size: 18px;
@@ -82,6 +83,7 @@ const ConfirmButton = styled.button`
   height: 30px;
   margin-top: 20px;
   color: #010140;
+
   &:hover {
     opacity: 0.4;
 `;
