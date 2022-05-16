@@ -1,38 +1,32 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import styled from "styled-components";
-import {CardType, ColumnInterface, CommentType} from "../../interfaces";
 import trashIcon from "../../images/trash.svg";
 import {Comments} from "../index";
+import {editTask} from "../../store/todoList/reducer";
+import {addComment} from "../../store/comments/reducer";
+import {useAppDispatch, useAppSelector} from "../../hooks/useAppDispatch";
+import {editDescription} from '../../store/todoList/reducer'
 
 export interface TaskPopupProps {
-    userName: string
     onSetCurrentCardId: (value: string) => void
     currentCardId: string
-    handleChangeCardText: (cardId: string, text: string) => void
-    handleChangeDescription: (cardId: string, description: string) => void
-    handleAddComment: (cardId: string, commentText: string) => void
-    handleDeleteComment: (commentId: string) => void
-    handleEditComment: (commentId: string, commentText: string) => void
     currentCardText: string
     currentCardDescription: string
     currentColumnTitle: string
-    currentComments: CommentType[]
 }
 
 const TaskPopup: React.FC<TaskPopupProps> = ({
-                                                 userName,
                                                  onSetCurrentCardId,
                                                  currentCardId,
-                                                 handleChangeCardText,
                                                  currentCardText,
                                                  currentCardDescription,
                                                  currentColumnTitle,
-                                                 handleChangeDescription,
-                                                 handleAddComment,
-                                                 handleDeleteComment,
-                                                 handleEditComment,
-                                                 currentComments,
+
                                              }) => {
+
+    const comments = useAppSelector(state => state.comments.comments)
+    const dispatch = useAppDispatch();
+
 
     const [title, setTitle] = useState(currentCardText);
     const [description, setDescription] = useState(currentCardDescription);
@@ -41,6 +35,12 @@ const TaskPopup: React.FC<TaskPopupProps> = ({
     const [inputCommentValue, setInputCommentValue] = useState<string>('');
     const [isDescriptionEditMode, setDescriptionEditMode] = useState<boolean>(false);
     const [isTitleEditMode, setTitleEditMode] = useState<boolean>(false);
+
+    const filteredComments = useMemo(
+        () => comments.filter((comment) =>
+            comment.cardId === currentCardId),
+        [currentCardId, comments]
+    )
 
     const handleCloseModal = () => {
         onSetCurrentCardId('');
@@ -56,9 +56,9 @@ const TaskPopup: React.FC<TaskPopupProps> = ({
 
     const handleTitle = () => {
         if (title !== '') {
-            handleChangeCardText(currentCardId, title)
+            dispatch(editTask({cardId: currentCardId, text: title}))
         } else {
-            handleChangeCardText(currentCardId, currentCardText)
+            dispatch(editTask({cardId: currentCardId, text: currentCardText}))
             setTitle(currentCardText)
         }
         setTitleEditMode(!isTitleEditMode)
@@ -89,7 +89,7 @@ const TaskPopup: React.FC<TaskPopupProps> = ({
     }
 
     const handleEditButton = () => {
-        handleChangeDescription(currentCardId, description)
+        dispatch(editDescription({cardId: currentCardId, description: description}))
         setValue(description)
         setDescriptionEditMode(!isDescriptionEditMode)
     }
@@ -100,7 +100,7 @@ const TaskPopup: React.FC<TaskPopupProps> = ({
     }
 
     const handleDeleteButton = () => {
-        handleChangeDescription(currentCardId, '')
+        dispatch(editDescription({cardId: currentCardId, description: ''}))
         setValue('')
     }
 
@@ -110,7 +110,7 @@ const TaskPopup: React.FC<TaskPopupProps> = ({
     }
 
     const handleCommentButton = () => {
-        handleAddComment(currentCardId, comment)
+        dispatch(addComment({cardId: currentCardId, commentText: comment}))
         setComment('');
     }
 
@@ -176,20 +176,19 @@ const TaskPopup: React.FC<TaskPopupProps> = ({
                 <CommentsContainer>
 
                     <div>
-                        {currentComments.map((comment) => {
+
+                        {filteredComments.map((comment) => {
                                 return (
+
                                     <Comments
-                                        userName={userName}
                                         commentText={comment.commentText}
                                         commentId={comment.id}
-                                        handleDeleteComment={handleDeleteComment}
-                                        handleEditComment={handleEditComment}
                                         key={comment.id}
-
                                     />
                                 )
                             }
                         )}
+
                     </div>
 
                 </CommentsContainer>
@@ -221,7 +220,7 @@ const Container = styled.div`
   width: 60%;
   min-height: 300px;
   max-height: 700px;
-  background:   rgba(211,211,211,1);
+  background: rgba(211, 211, 211, 1);
   border-radius: 20px;
   margin: 50px;
 `;
@@ -287,7 +286,7 @@ const CommentInput = styled.input`
   width: 100%;
   border: none;
   border-radius: 5px;
-  
+
   &:focus {
     outline: solid 2px cornflowerblue;
 `;

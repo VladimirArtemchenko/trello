@@ -1,19 +1,18 @@
 import React, {useState} from "react";
 import styled from "styled-components";
+import {useAppDispatch} from "../../hooks/useAppDispatch";
+import {addUserName} from "../../store/login/reducer";
 
-export interface LoginProps {
-    onSetUserName: (value: string) => void;
-}
 
-const Login: React.FC<LoginProps> = ({onSetUserName}) => {
+const Login: React.FC = () => {
 
     const [value, setValue] = useState('');
 
-    const handleConfirm = () => {
+    const dispatch = useAppDispatch();
 
+    const handleConfirm = () => {
         if (value) {
-            onSetUserName(value)
-            localStorage.setItem("userName", JSON.stringify(value))
+            dispatch(addUserName(value))
         }
     }
 
@@ -67,12 +66,13 @@ const Name = styled.input`
   height: 30px;
   border: none;
   border-radius: 5px;
-  border: none;
+
   &:focus {
     outline: solid 2px cornflowerblue;
-  &::placeholder {
-    text-align: center;
-  }
+
+    &::placeholder {
+      text-align: center;
+    }
 `;
 const ConfirmButton = styled.button`
   font-size: 18px;
@@ -82,6 +82,7 @@ const ConfirmButton = styled.button`
   height: 30px;
   margin-top: 20px;
   color: #010140;
+
   &:hover {
     opacity: 0.4;
 `;

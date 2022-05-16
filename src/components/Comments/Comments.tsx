@@ -1,29 +1,29 @@
 import React, {useState} from "react";
 import styled from "styled-components";
 import trashIcon from "../../images/trash.svg";
+import {editComment, removeComment} from "../../store/comments/reducer";
+import {useAppDispatch, useAppSelector} from "../../hooks/useAppDispatch";
 
 export interface CommentsProps {
-    userName: string
+
     commentText: string
     commentId: string
-    handleDeleteComment: (commentId: string) => void
-    handleEditComment: (commentId: string, commentText: string) => void
 
 };
 
 const Comments: React.FC<CommentsProps> = ({
-                                               userName,
                                                commentText,
                                                commentId,
-                                               handleDeleteComment,
-                                               handleEditComment
                                            }) => {
+
+    const userName = useAppSelector(state => state.userName.userName)
+    const dispatch = useAppDispatch();
 
     const [isCommentEditMode, setCommentEditMode] = useState(false);
     const [commentValue, setCommentValue] = useState(commentText);
 
     const handleDeleteButton = () => {
-        handleDeleteComment(commentId)
+        dispatch(removeComment({commentId: commentId}))
     }
 
     const handleEditButton = () => {
@@ -31,7 +31,7 @@ const Comments: React.FC<CommentsProps> = ({
     }
 
     const handleSaveButton = () => {
-        handleEditComment(commentId, commentValue)
+        dispatch(editComment({commentId: commentId, commentText: commentValue}))
         setCommentEditMode(!isCommentEditMode)
     }
 

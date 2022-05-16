@@ -1,59 +1,37 @@
 import React, {useMemo, useState} from "react";
 import {Column, Login, Modal, TaskModal} from './components';
-import {ColumnInterface, CommentType, CardType} from "./interfaces";
 import styled from "styled-components";
-import {v4 as uuidv4} from "uuid";
-import {useStateWithLocalStorage} from "./hooks";
+import {addColumn} from './store/column/reducer'
+import {useAppDispatch, useAppSelector} from "./hooks/useAppDispatch";
 
-const initialColumnsName = [
-    {id: uuidv4(), columnName: 'To do'},
-    {id: uuidv4(), columnName: 'In Progress'},
-    {id: uuidv4(), columnName: 'Testing'},
-    {id: uuidv4(), columnName: 'Done'},
-]
 
 const App: React.FC = () => {
 
-    const [userName, setUserName] = useStateWithLocalStorage<string>("userName", '')
-    const [columns, setColumns] = useStateWithLocalStorage<ColumnInterface[]>("columns", initialColumnsName)
-    const [todoList, setTodoList] = useStateWithLocalStorage<CardType[]>("todoList", [])
-    const [comments, setComments] = useStateWithLocalStorage<CommentType[]>("comments", [])
+    const columns=useAppSelector(state => state.columns.columns)
+    const userName=useAppSelector(state => state.userName.userName)
+    const todoList=useAppSelector(state => state.todoList.todoList)
+
+    const dispatch=useAppDispatch();
+
     const [isEdit, setIsEdit] = useState(true)
     const [columnTitle, setColumnTitle] = useState('');
     const [currentCardId, setCurrentCardId] = useState<string>()
+
+    const addColum = () => {
+        if (columnTitle) {
+        dispatch(addColumn({columnTitle:columnTitle}))
+        setColumnTitle('')
+        }
+        setIsEdit(true)
+    }
 
     const handleChange = ({target}: React.ChangeEvent<HTMLInputElement>) => {
         setColumnTitle(target.value)
     }
 
-    const handleCreateColumn = () => {
-        if (columnTitle) {
-            setColumns([...columns, {id: uuidv4(), columnName: columnTitle}])
-            setColumnTitle('')
-        }
-        setIsEdit(true)
-    }
-
-    const handleChangeColumn = (columnId: string, columnName: string) => {
-        const newColumns = columns.map(column => column.id === columnId
-            ? {...column, columnName: columnName} : column)
-        setColumns([...newColumns]);
-    }
-
-    const handleDeleteColumn = (columnId: string) => {
-        const newColumns = columns.filter(column => column.id !== columnId);
-        setColumns([...newColumns]);
-    }
-
     const handleShowTaskModal = ({currentTarget}: React.MouseEvent) => {
         setCurrentCardId(currentTarget.id)
     }
-
-    const filteredComments = useMemo(
-        () => comments.filter((comment) =>
-            comment.cardId === currentCardId),
-        [comments, currentCardId]
-    )
 
     const currentCard = useMemo(
         () => todoList.find(todo =>
@@ -66,50 +44,14 @@ const App: React.FC = () => {
             column.id === currentCard?.columnId),
         [columns, currentCard]
     )
+
     const isCardPopupOpen = currentCardId && currentCard && currentColumn
-
-    const handleCreateTask = (columnId: string, taskTitle: string) => {
-        if (taskTitle) {
-            setTodoList([{id: uuidv4(), text: taskTitle, description: '', columnId: columnId,}, ...todoList]);
-        }
-    }
-
-    const handleChangeCardText = (cardId: string, text: string) => {
-        const newTodoList = todoList.map(todo => todo.id === cardId
-            ? {...todo, text: text} : todo)
-        setTodoList([...newTodoList]);
-    }
-
-    const handleChangeDescription = (cardId: string, description: string) => {
-        const newTodoList = todoList.map(todo => todo.id === cardId
-            ? {...todo, description: description} : todo)
-        setTodoList([...newTodoList]);
-    }
-
-    const handleDeleteCard = (cardId: string) => {
-        const newTodoList = todoList.filter(todo => todo.id !== cardId);
-        setTodoList([...newTodoList]);
-    }
-
-    const handleAddComment = (cardId: string, commentText: string) => {
-        setComments([{id: uuidv4(), commentText: commentText, cardId: cardId}, ...comments]);
-    }
-
-    const handleDeleteComment = (commentId: string) => {
-        const newComments = comments.filter(comment => comment.id !== commentId);
-        setComments([...newComments]);
-    }
-
-    const handleEditComment = (commentId: string, commentText: string) => {
-        const newComments = comments.map(comment => comment.id === commentId
-            ? {...comment, commentText: commentText} : comment)
-        setComments([...newComments]);
-    }
 
     const handleNewButton = () => {
         setIsEdit(false)
     }
     const handleCancelButton = () => {
+        setColumnTitle('')
         setIsEdit(true)
     }
 
@@ -128,37 +70,38 @@ const App: React.FC = () => {
                             return (
 
                                 <Column
-                                    handleChangeColumn={handleChangeColumn}
-                                    handleDeleteColumn={handleDeleteColumn}
                                     handleShowTaskModal={handleShowTaskModal}
-                                    handleChangeCardText={handleChangeCardText}
-                                    handleDeleteCard={handleDeleteCard}
-                                    handleCreateTask={handleCreateTask}
                                     columnId={column.id}
                                     columnTitle={column.columnName}
-                                    todoList={todoList}
-                                    comments={comments}
                                     key={column.id}
                                 />
+
                             )
                         })}
                         {isEdit
-                            ?
-                            <AddButton onClick={handleNewButton}>+ Добавить еще колонку</AddButton>
+                            ? <AddButton onClick={handleNewButton}>+ Добавить еще колонку</AddButton>
                             : <CentredFlex>
+
                                 < NewColumn type="text" onChange={handleChange} value={columnTitle} autoFocus={true}/>
+
                                 <Flex>
-                                    <NewColumnButton onClick={handleCreateColumn}>Add Board</NewColumnButton>
+
+                                    <NewColumnButton onClick={addColum}>Add Board</NewColumnButton>
                                     <CancelButton onClick={handleCancelButton}>X</CancelButton>
+
                                 </Flex>
+
                             </CentredFlex>
                         }
+
                     </Columns>
 
                 </div>
 
                 : <Modal>
-                    <Login onSetUserName={setUserName}/>
+
+                    <Login/>
+
                 </Modal>
             }
 
@@ -166,18 +109,11 @@ const App: React.FC = () => {
                 && <Modal>
 
                     <TaskModal
-                        userName={userName}
                         onSetCurrentCardId={setCurrentCardId}
                         currentCardId={currentCardId}
                         currentCardText={currentCard.text}
                         currentCardDescription={currentCard.description}
                         currentColumnTitle={currentColumn.columnName}
-                        currentComments={filteredComments}
-                        handleChangeCardText={handleChangeCardText}
-                        handleChangeDescription={handleChangeDescription}
-                        handleAddComment={handleAddComment}
-                        handleDeleteComment={handleDeleteComment}
-                        handleEditComment={handleEditComment}
                     />
 
                 </Modal>}

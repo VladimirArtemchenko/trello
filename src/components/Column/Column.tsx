@@ -2,34 +2,26 @@ import React, {useState, useMemo} from "react";
 import styled from "styled-components";
 import trashIcon from "../../images/trash.svg";
 import {Task} from "../index";
-import {CardType, CommentType} from "../../interfaces";
+import {removeColumn, editColumn} from '../../store/column/reducer'
+import {addTask} from '../../store/todoList/reducer'
+import {useAppDispatch, useAppSelector} from "../../hooks/useAppDispatch";
 
 export interface ColumnProps {
     handleShowTaskModal: ({target}: React.MouseEvent<HTMLDivElement>) => void
-    handleChangeColumn: (columnId: string, columnName: string) => void
-    handleDeleteColumn: (columnId: string) => void
-    handleChangeCardText: (cardId: string, text: string) => void
-    handleDeleteCard: (cardId: string) => void
-    handleCreateTask: (columnId: string, taskTitle: string) => void
     columnTitle: string
     columnId: string
-    todoList: CardType[]
-    comments: CommentType[]
 };
 
 
 const Column: React.FC<ColumnProps> = ({
-                                           handleChangeColumn,
-                                           handleDeleteColumn,
-                                           handleDeleteCard,
-                                           handleChangeCardText,
                                            columnTitle,
                                            columnId,
-                                           todoList,
-                                           handleCreateTask,
                                            handleShowTaskModal,
-                                           comments
+
                                        }) => {
+
+    const todoList = useAppSelector(state => state.todoList.todoList)
+    const dispatch = useAppDispatch();
 
     const [taskTitle, setTaskTitle] = useState('');
     const [title, setTitle] = useState(columnTitle);
@@ -41,32 +33,35 @@ const Column: React.FC<ColumnProps> = ({
         [columnId, todoList]
     )
 
+    const handleDeleteColum = () => {
+        dispatch(removeColumn({columnId: columnId}))
+    }
+
+    const handleEditColumn = () => {
+        if (title !== '') {
+            dispatch(editColumn({columnId: columnId, columnTitle: title}));
+        } else {
+            dispatch(editColumn({columnId: columnId, columnTitle: columnTitle}));
+            setTitle(columnTitle)
+        }
+        setEditActive(!isEditActive)
+    }
+
     const handleChange = ({target}: React.ChangeEvent<HTMLInputElement>) => {
         setTaskTitle(target.value)
     }
 
     const handleNewTaskButton = () => {
-        handleCreateTask(columnId, taskTitle)
-        setTaskTitle('');
-    }
-
-    const handleEditColumn = () => {
-        if (title !== '') {
-            handleChangeColumn(columnId, title)
-        } else {
-            handleChangeColumn(columnId, columnTitle)
-            setTitle(columnTitle)
+        if (taskTitle) {
+            dispatch(addTask({text: taskTitle, columnId: columnId}))
+            setTaskTitle('');
         }
-        setEditActive(!isEditActive)
-    };
+    }
 
     const handleChangeTitle = ({target}: React.ChangeEvent<HTMLInputElement>) => {
         setTitle(target.value)
     }
 
-    const handleDeleteColumnButton = () => {
-        handleDeleteColumn(columnId)
-    }
 
     return (
         <Root>
@@ -80,7 +75,7 @@ const Column: React.FC<ColumnProps> = ({
                     : <Title onClick={handleEditColumn}>{title}</Title>
                 }
 
-                <DeleteColumnButton onClick={handleDeleteColumnButton}/>
+                <DeleteColumnButton onClick={handleDeleteColum}/>
 
             </Flex>
 
@@ -89,18 +84,16 @@ const Column: React.FC<ColumnProps> = ({
 
                         return (
                             <Task
-                                handleChangeCardText={handleChangeCardText}
-                                handleDeleteCard={handleDeleteCard}
                                 cardId={card.id}
                                 cardText={card.text}
                                 key={card.id}
-                                comments={comments}
                                 handleShowTaskModal={handleShowTaskModal}
                             />
                         )
                     }
                 )}
             </Tasks>
+
             <Flex>
 
                 <NewTask onChange={handleChange} value={taskTitle} name={taskTitle}/>

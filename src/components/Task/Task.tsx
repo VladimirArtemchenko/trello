@@ -2,27 +2,25 @@ import React, {useMemo, useState} from "react";
 import styled from "styled-components";
 import trashIcon from "../../images/trash.svg";
 import commentsIcon from "../../images/commentsIcon.png";
-import {CommentType} from "../../interfaces";
+import {removeTask, editTask} from '../../store/todoList/reducer'
+import {useAppDispatch, useAppSelector} from "../../hooks/useAppDispatch";
 
 export interface TaskProps {
     handleShowTaskModal: ({target}: React.MouseEvent<HTMLDivElement>) => void
-    handleChangeCardText: (cardId: string, text: string) => void
-    handleDeleteCard: (cardId: string) => void
     cardId: string
-    cardText:string
-    comments: CommentType[]
+    cardText: string
 
 };
 
 const Task: React.FC<TaskProps> = ({
                                        handleShowTaskModal,
-                                       handleDeleteCard,
-                                       handleChangeCardText,
                                        cardId,
                                        cardText,
-                                       comments,
 
                                    }) => {
+
+    const comments=useAppSelector(state => state.comments.comments)
+    const dispatch = useAppDispatch();
 
     const [value, setValue] = useState(cardText);
     const [isTaskActive, setTaskActive] = useState(true)
@@ -33,7 +31,7 @@ const Task: React.FC<TaskProps> = ({
         [cardId, comments]
     )
 
-    const handleEditMode = (event:React.MouseEvent<HTMLButtonElement>) => {
+    const handleEditMode = (event: React.MouseEvent<HTMLButtonElement>) => {
         setValue(cardText)
         setTaskActive(false)
     }
@@ -42,23 +40,23 @@ const Task: React.FC<TaskProps> = ({
         setValue(event.target.value)
     }
 
-    const handleSaveTask = (event:React.MouseEvent<HTMLButtonElement>) => {
-        if (value !== ''){
-            handleChangeCardText(cardId, value)
-    }else {
-            handleChangeCardText(cardId, cardText)
+    const handleSaveTask = (event: React.MouseEvent<HTMLButtonElement>) => {
+        if (value !== '') {
+            dispatch(editTask({cardId: cardId, text: value}))
+        } else {
+            dispatch(editTask({cardId: cardId, text: cardText}))
             setValue(cardText)
         }
         setTaskActive(true)
     }
 
 
-    const handleCancelTaskEditing = (event:React.MouseEvent<HTMLButtonElement>) => {
+    const handleCancelTaskEditing = (event: React.MouseEvent<HTMLButtonElement>) => {
         setTaskActive(true)
     }
 
-    const handleDeleteTask = (event:React.MouseEvent<HTMLButtonElement>) => {
-        handleDeleteCard(cardId)
+    const handleDeleteTask = (event: React.MouseEvent<HTMLButtonElement>) => {
+        dispatch(removeTask({cardId: cardId}))
     }
 
     return (
@@ -68,6 +66,7 @@ const Task: React.FC<TaskProps> = ({
             <Flex>
 
                 {isTaskActive
+
                     ? <Text id={cardId} onClick={handleShowTaskModal}>{cardText}</Text>
 
                     : <EditTask onChange={handleChangeTask}
@@ -98,10 +97,14 @@ const Task: React.FC<TaskProps> = ({
                 </FlexColumn>
 
             </Flex>
+
             <Flex>
-                <CommentsIcon></CommentsIcon>
-            <Comments>{filteredComments.length}</Comments>
-                </Flex>
+
+                <CommentsIcon/>
+
+                <Comments>{filteredComments.length}</Comments>
+
+            </Flex>
         </Root>
     )
 }
@@ -112,7 +115,7 @@ const Root = styled.div`
   width: 260px;
   padding: 5px;
   box-sizing: border-box;
-  background: rgba(221,221,221,0.4);
+  background: rgba(221, 221, 221, 0.4);
   border-radius: 10px;
   margin-top: 10px;
 `;
@@ -152,9 +155,10 @@ const EditTask = styled.input`
   word-wrap: break-word;
   margin: 5px 0 0 0;
   padding: 0;
-  border:none;
+  border: none;
+
   &:focus {
-    outline:  solid 2px cornflowerblue;
+    outline: solid 2px cornflowerblue;
 `;
 const DeleteTaskButton = styled.button`
   padding: 0;
@@ -167,6 +171,7 @@ const DeleteTaskButton = styled.button`
   height: 30px;
   cursor: pointer;
   color: #010140;
+
   &:hover {
     opacity: 0.4;
 `;
@@ -181,6 +186,7 @@ const EditButton = styled.button`
   height: 30px;
   cursor: pointer;
   color: #010140;
+
   &:hover {
     opacity: 0.4;
 `;
@@ -195,6 +201,7 @@ const SaveButton = styled.button`
   height: 30px;
   cursor: pointer;
   color: #010140;
+
   &:hover {
     opacity: 0.4;
 `;
@@ -209,6 +216,7 @@ const CancelButton = styled.button`
   height: 30px;
   cursor: pointer;
   color: #010140;
+
   &:hover {
     opacity: 0.4;
 `;
