@@ -6,7 +6,7 @@ import Global from "./styles/Global"
 import reportWebVitals from './reportWebVitals';
 import {Provider} from "react-redux";
 import { PersistGate } from 'redux-persist/integration/react'
-import store, {persistor} from "./store/main/store";
+import store, {persistor} from "./store";
 
 
 

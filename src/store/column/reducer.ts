@@ -25,7 +25,7 @@ const columnsSlice = createSlice({
             state.columns = state.columns.filter(column => column.id !== action.payload.columnId);
         },
         editColumn(state, action) {
-            state.columns = columns.map(column => column.id === action.payload.columnId
+            state.columns = state.columns.map(column => column.id === action.payload.columnId
                 ? {...column, columnName: action.payload.columnTitle} : column)
         }
     },

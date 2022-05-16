@@ -2,7 +2,7 @@ import React, {useMemo, useState} from "react";
 import {Column, Login, Modal, TaskModal} from './components';
 import styled from "styled-components";
 import {addColumn} from './store/column/reducer'
-import {useAppDispatch, useAppSelector} from "./hooks/useAppDispatch";
+import {useAppDispatch, useAppSelector} from "./hooks";
 
 
 const App: React.FC = () => {

@@ -1,8 +1,8 @@
 import {combineReducers} from "@reduxjs/toolkit";
-import columnReducer from "../column/reducer";
-import userNameReducer from "../login/reducer";
-import todoReducer from "../todoList/reducer";
-import commentReducer from "../comments/reducer";
+import columnReducer from "./store/column/reducer";
+import userNameReducer from "./store/login/reducer";
+import todoReducer from "./store/todoList/reducer";
+import commentReducer from "./store/comments/reducer";
 
 const rootReducer = combineReducers({
     columns: columnReducer,

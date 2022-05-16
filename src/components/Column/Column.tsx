@@ -4,7 +4,7 @@ import trashIcon from "../../images/trash.svg";
 import {Task} from "../index";
 import {removeColumn, editColumn} from '../../store/column/reducer'
 import {addTask} from '../../store/todoList/reducer'
-import {useAppDispatch, useAppSelector} from "../../hooks/useAppDispatch";
+import {useAppDispatch, useAppSelector} from "../../hooks";
 
 export interface ColumnProps {
     handleShowTaskModal: ({target}: React.MouseEvent<HTMLDivElement>) => void
@@ -37,7 +37,10 @@ const Column: React.FC<ColumnProps> = ({
         dispatch(removeColumn({columnId: columnId}))
     }
 
-    const handleEditColumn = () => {
+    const handleEditColumn =()=>{
+        setEditActive(!isEditActive)
+    }
+    const handleColumn = () => {
         if (title !== '') {
             dispatch(editColumn({columnId: columnId, columnTitle: title}));
         } else {
@@ -69,7 +72,7 @@ const Column: React.FC<ColumnProps> = ({
 
                 {isEditActive
 
-                    ? <EditTitle onChange={handleChangeTitle} onBlur={handleEditColumn}
+                    ? <EditTitle onChange={handleChangeTitle} onBlur={handleColumn}
                                  value={title} name={columnTitle} autoFocus={true}/>
 
                     : <Title onClick={handleEditColumn}>{title}</Title>
