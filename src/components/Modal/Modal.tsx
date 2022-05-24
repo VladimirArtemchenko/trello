@@ -1,20 +1,17 @@
-import React from "react";
-import styled from "styled-components";
+import React from 'react';
+import styled from 'styled-components';
 
 export interface ModalProps {
-    children: React.ReactNode;
+  children: React.ReactNode;
 }
 
-const Modal: React.FC<ModalProps> = ({children}) => {
+const Modal: React.FC<ModalProps> = ({ children }) => (
 
-    return (
+  <Root>{children}</Root>
 
-        <Root>{children}</Root>
+);
 
-    )
-}
-
-export default Modal
+export default Modal;
 
 const Root = styled.div`
 `;

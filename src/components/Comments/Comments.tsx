@@ -1,88 +1,84 @@
-import React, {useState} from "react";
-import styled from "styled-components";
-import trashIcon from "../../images/trash.svg";
-import {editComment, removeComment} from "../../store/comments/reducer";
-import {useAppDispatch, useAppSelector} from "../../hooks/useAppDispatch";
+import React, { useState } from 'react';
+import styled from 'styled-components';
+import trashIcon from '../../images/trash.svg';
+import { editComment, removeComment } from '../../store/comments/reducer';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 
 export interface CommentsProps {
 
-    commentText: string
-    commentId: string
+  commentText: string;
+  commentId: string;
 
-};
-
-const Comments: React.FC<CommentsProps> = ({
-                                               commentText,
-                                               commentId,
-                                           }) => {
-
-    const userName = useAppSelector(state => state.userName.userName)
-    const dispatch = useAppDispatch();
-
-    const [isCommentEditMode, setCommentEditMode] = useState(false);
-    const [commentValue, setCommentValue] = useState(commentText);
-
-    const handleDeleteButton = () => {
-        dispatch(removeComment({commentId: commentId}))
-    }
-
-    const handleEditButton = () => {
-        setCommentEditMode(!isCommentEditMode)
-    }
-
-    const handleSaveButton = () => {
-        dispatch(editComment({commentId: commentId, commentText: commentValue}))
-        setCommentEditMode(!isCommentEditMode)
-    }
-
-    const handleChangeEditComment = ({target}: React.ChangeEvent<HTMLInputElement>) => {
-        setCommentValue(target.value)
-    }
-
-    const cancelCommentEdit = () => {
-        setCommentValue(commentText)
-        setCommentEditMode(!isCommentEditMode)
-    }
-
-    return (
-        <Root>
-
-            <Flex>
-
-                {isCommentEditMode
-
-                    ? <CommentEditInput onChange={handleChangeEditComment} value={commentValue} autoFocus={true}/>
-
-                    : <Comment onClick={handleEditButton}>{userName} : {commentText}</Comment>
-                }
-
-                {isCommentEditMode
-
-                    ? <Container>
-
-                        <SaveButton onClick={handleSaveButton}>Save</SaveButton>
-
-                        <CancelButton type="button" onClick={cancelCommentEdit}>Cancel</CancelButton>
-
-                    </Container>
-
-                    : <Container>
-
-                        <EditButton onClick={handleEditButton}>Edit</EditButton>
-
-                        <DeleteCommentButton onClick={handleDeleteButton}/>
-
-                    </Container>
-
-                }
-
-            </Flex>
-
-        </Root>
-    )
 }
 
-export default Comments
+const Comments: React.FC<CommentsProps> = ({
+  commentText,
+  commentId,
+}) => {
+  const userName = useAppSelector((state) => state.userName.userName);
+  const dispatch = useAppDispatch();
+
+  const [isCommentEditMode, setCommentEditMode] = useState(false);
+  const [commentValue, setCommentValue] = useState(commentText);
+
+  const handleDeleteButton = () => {
+    dispatch(removeComment({ commentId }));
+  };
+
+  const handleEditButton = () => {
+    setCommentEditMode(!isCommentEditMode);
+  };
+
+  const handleSaveButton = () => {
+    dispatch(editComment({
+      commentId,
+      commentText: commentValue,
+    }));
+    setCommentEditMode(!isCommentEditMode);
+  };
+
+  const handleChangeEditComment = ({ target }: React.ChangeEvent<HTMLInputElement>) => {
+    setCommentValue(target.value);
+  };
+
+  const cancelCommentEdit = () => {
+    setCommentValue(commentText);
+    setCommentEditMode(!isCommentEditMode);
+  };
+
+  return (
+    <Root>
+      <Flex>
+        {isCommentEditMode
+          ? <CommentEditInput onChange={handleChangeEditComment} value={commentValue} autoFocus />
+          : (
+            <Comment onClick={handleEditButton}>
+              {userName}
+              {' '}
+              :
+              {' '}
+              {commentText}
+            </Comment>
+          )}
+        {isCommentEditMode
+          ? (
+            <Container>
+              <SaveButton onClick={handleSaveButton}>Save</SaveButton>
+              <CancelButton type="button" onClick={cancelCommentEdit}>Cancel</CancelButton>
+            </Container>
+          )
+          : (
+            <Container>
+              <EditButton onClick={handleEditButton}>Edit</EditButton>
+              <DeleteCommentButton onClick={handleDeleteButton} />
+            </Container>
+          )}
+      </Flex>
+    </Root>
+  );
+};
+
+export default Comments;
 
 const Root = styled.div`
   margin: 0 15% 0 15%;

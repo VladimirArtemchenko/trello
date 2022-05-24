@@ -1,115 +1,105 @@
-import React, {useMemo, useState} from "react";
-import styled from "styled-components";
-import trashIcon from "../../images/trash.svg";
-import commentsIcon from "../../images/commentsIcon.png";
-import {removeTask, editTask} from '../../store/todoList/reducer'
-import {useAppDispatch, useAppSelector} from "../../hooks/useAppDispatch";
+import React, { useMemo, useState } from 'react';
+import styled from 'styled-components';
+import trashIcon from '../../images/trash.svg';
+import commentsIcon from '../../images/commentsIcon.png';
+import { removeTask, editTask } from '../../store/todoList/reducer';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 
 export interface TaskProps {
-    handleShowTaskModal: ({target}: React.MouseEvent<HTMLDivElement>) => void
-    cardId: string
-    cardText: string
-
-};
-
-const Task: React.FC<TaskProps> = ({
-                                       handleShowTaskModal,
-                                       cardId,
-                                       cardText,
-
-                                   }) => {
-
-    const comments=useAppSelector(state => state.comments.comments)
-    const dispatch = useAppDispatch();
-
-    const [value, setValue] = useState(cardText);
-    const [isTaskActive, setTaskActive] = useState(true)
-
-    const filteredComments = useMemo(
-        () => comments.filter((coment) =>
-            coment.cardId === cardId),
-        [cardId, comments]
-    )
-
-    const handleEditMode = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setValue(cardText)
-        setTaskActive(false)
-    }
-
-    const handleChangeTask = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setValue(event.target.value)
-    }
-
-    const handleSaveTask = (event: React.MouseEvent<HTMLButtonElement>) => {
-        if (value !== '') {
-            dispatch(editTask({cardId: cardId, text: value}))
-        } else {
-            dispatch(editTask({cardId: cardId, text: cardText}))
-            setValue(cardText)
-        }
-        setTaskActive(true)
-    }
-
-
-    const handleCancelTaskEditing = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setTaskActive(true)
-    }
-
-    const handleDeleteTask = (event: React.MouseEvent<HTMLButtonElement>) => {
-        dispatch(removeTask({cardId: cardId}))
-    }
-
-    return (
-
-        <Root>
-
-            <Flex>
-
-                {isTaskActive
-
-                    ? <Text id={cardId} onClick={handleShowTaskModal}>{cardText}</Text>
-
-                    : <EditTask onChange={handleChangeTask}
-                                value={value} name={cardText} autoFocus={true}/>
-                }
-
-                <FlexColumn>
-
-                    {isTaskActive
-                        ? <Container>
-
-                            <EditButton onClick={handleEditMode}>Edit</EditButton>
-
-                            <DeleteTaskButton onClick={handleDeleteTask}/>
-
-                        </Container>
-
-                        : <Container>
-
-                            <SaveButton onClick={handleSaveTask}>Save</SaveButton>
-
-                            <CancelButton onClick={handleCancelTaskEditing}>Cancel</CancelButton>
-
-                        </Container>
-                    }
-
-
-                </FlexColumn>
-
-            </Flex>
-
-            <Flex>
-
-                <CommentsIcon/>
-
-                <Comments>{filteredComments.length}</Comments>
-
-            </Flex>
-        </Root>
-    )
+  handleShowTaskModal: ({ target }: React.MouseEvent<HTMLDivElement>) => void;
+  cardId: string;
+  cardText: string;
 }
 
-export default Task
+const Task: React.FC<TaskProps> = ({
+  handleShowTaskModal,
+  cardId,
+  cardText,
+
+}) => {
+  const comments = useAppSelector((state) => state.comments.comments);
+  const dispatch = useAppDispatch();
+
+  const [value, setValue] = useState(cardText);
+  const [isTaskActive, setTaskActive] = useState(true);
+
+  const filteredComments = useMemo(
+    () => comments.filter((comment) => comment.cardId === cardId),
+    [cardId, comments],
+  );
+
+  const handleEditMode = () => {
+    setValue(cardText);
+    setTaskActive(false);
+  };
+
+  const handleChangeTask = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setValue(event.target.value);
+  };
+
+  const handleSaveTask = () => {
+    if (value !== '') {
+      dispatch(editTask({
+        cardId,
+        text: value,
+      }));
+    } else {
+      dispatch(editTask({
+        cardId,
+        text: cardText,
+      }));
+      setValue(cardText);
+    }
+    setTaskActive(true);
+  };
+
+  const handleCancelTaskEditing = () => {
+    setTaskActive(true);
+  };
+
+  const handleDeleteTask = () => {
+    dispatch(removeTask({ cardId }));
+  };
+
+  return (
+
+    <Root>
+      <Flex>
+        {isTaskActive
+          ? <Text id={cardId} onClick={handleShowTaskModal}>{cardText}</Text>
+          : (
+            <EditTask
+              onChange={handleChangeTask}
+              value={value}
+              name={cardText}
+              autoFocus
+            />
+          )}
+        <FlexColumn>
+          {isTaskActive
+            ? (
+              <Container>
+                <EditButton onClick={handleEditMode}>Edit</EditButton>
+                <DeleteTaskButton onClick={handleDeleteTask} />
+              </Container>
+            )
+            : (
+              <Container>
+                <SaveButton onClick={handleSaveTask}>Save</SaveButton>
+                <CancelButton onClick={handleCancelTaskEditing}>Cancel</CancelButton>
+              </Container>
+            )}
+        </FlexColumn>
+      </Flex>
+      <Flex>
+        <CommentsIcon />
+        <Comments>{filteredComments.length}</Comments>
+      </Flex>
+    </Root>
+  );
+};
+
+export default Task;
 
 const Root = styled.div`
   width: 260px;

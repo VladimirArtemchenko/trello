@@ -1,43 +1,32 @@
-import React, {useState} from "react";
-import styled from "styled-components";
-import {useAppDispatch} from "../../hooks/useAppDispatch";
-import {addUserName} from "../../store/login/reducer";
-
+import React, { useState } from 'react';
+import styled from 'styled-components';
+import { useAppDispatch } from '../../hooks';
+import { addUserName } from '../../store/login/reducer';
 
 const Login: React.FC = () => {
-
-    const [value, setValue] = useState('');
-
-    const dispatch = useAppDispatch();
-
-    const handleConfirm = () => {
-        if (value) {
-            dispatch(addUserName(value))
-        }
+  const [userName, setUserName] = useState('');
+  const dispatch = useAppDispatch();
+  const handleConfirm = () => {
+    if (userName) {
+      dispatch(addUserName({ userName }));
     }
+  };
 
-    const handleChange = ({target}: React.ChangeEvent<HTMLInputElement>) => {
-        setValue(target.value)
-    }
+  const handleChange = ({ target }: React.ChangeEvent<HTMLInputElement>) => {
+    setUserName(target.value);
+  };
 
-    return (
+  return (
+    <Root>
+      <Container>
+        <Name type="text" onChange={handleChange} value={userName} placeholder="Введите свое имя?" />
+        <ConfirmButton type="button" onClick={handleConfirm}>Confirm</ConfirmButton>
+      </Container>
+    </Root>
+  );
+};
 
-        <Root>
-
-            <Container>
-
-                <Name type="text" onChange={handleChange} value={value} placeholder={'Введите свое имя?'}/>
-
-                <ConfirmButton type="button" onClick={handleConfirm}>Confirm</ConfirmButton>
-
-            </Container>
-
-        </Root>
-
-    )
-}
-
-export default Login
+export default Login;
 
 const Root = styled.div`
   position: fixed;

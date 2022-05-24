@@ -1,37 +1,36 @@
-import {createSlice} from "@reduxjs/toolkit";
-import {v4 as uuidv4} from "uuid";
-import {ColumnInterface} from "../../interfaces";
-
-
-const columns: ColumnInterface[] = [
-    {id: uuidv4(), columnName: 'To do'},
-    {id: uuidv4(), columnName: 'In Progress'},
-    {id: uuidv4(), columnName: 'Testing'},
-    {id: uuidv4(), columnName: 'Done'},
-]
-
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { v4 as uuidv4 } from 'uuid';
+import { columns } from './state';
+import { AddColumn, EditColumn, RemoveColumn } from './action-types';
 
 const columnsSlice = createSlice({
-    name: 'columns',
-    initialState: {columns},
-    reducers: {
-        addColumn(state, action) {
-            state.columns.push({
-                id: uuidv4(),
-                columnName: action.payload.columnTitle
-            })
-        },
-        removeColumn(state, action) {
-            state.columns = state.columns.filter(column => column.id !== action.payload.columnId);
-        },
-        editColumn(state, action) {
-            state.columns = state.columns.map(column => column.id === action.payload.columnId
-                ? {...column, columnName: action.payload.columnTitle} : column)
-        }
+  name: 'columns',
+  initialState: { columns },
+  reducers: {
+    addColumn(state, action: PayloadAction<AddColumn>) {
+      state.columns.push({
+        id: uuidv4(),
+        columnName: action.payload.columnTitle,
+      });
     },
+    removeColumn(state, action: PayloadAction<RemoveColumn>) {
+      state.columns = state.columns.filter((column) => column.id !== action.payload.columnId);
+    },
+    editColumn(state, action: PayloadAction<EditColumn>) {
+      state.columns = state.columns.map((column) => (column.id === action.payload.columnId
+        ? {
+          ...column,
+          columnName: action.payload.columnTitle,
+        } : column));
+    },
+  },
 
-})
+});
 
-export const {addColumn, removeColumn, editColumn} = columnsSlice.actions;
+export const {
+  addColumn,
+  removeColumn,
+  editColumn,
+} = columnsSlice.actions;
 
-export default columnsSlice.reducer
+export default columnsSlice.reducer;

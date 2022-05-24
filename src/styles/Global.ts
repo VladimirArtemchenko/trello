@@ -1,4 +1,4 @@
-import { createGlobalStyle } from "styled-components";
+import { createGlobalStyle } from 'styled-components';
 
 const Global = createGlobalStyle`
   body {
@@ -14,5 +14,5 @@ const Global = createGlobalStyle`
   #root {
     width: 100%;
   }
-`
-export default Global
+`;
+export default Global;
