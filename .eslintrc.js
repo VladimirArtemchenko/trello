@@ -18,11 +18,17 @@ module.exports = {
   plugins: [
     'react',
     '@typescript-eslint',
+    'import',
   ],
   rules: {
     'import/extensions': 'off',
+    'no-param-reassign': 0,
+    'import/prefer-default-export': 'off',
+    'react/jsx-filename-extension': [1, { extensions: ['.tsx', '.jsx'] }],
+    'no-use-before-define': ['error', { variables: false }],
   },
   settings: {
+    'react/function-component-definition': '[2, { "namedComponents": "arrow-function" }]',
     'import/resolver': {
       node: {
         paths: ['src'],
