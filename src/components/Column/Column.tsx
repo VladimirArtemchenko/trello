@@ -1,116 +1,98 @@
-import React, {useState, useMemo} from "react";
-import styled from "styled-components";
-import trashIcon from "../../images/trash.svg";
-import {Task} from "../index";
-import {CardType, CommentType} from "../../interfaces";
-import {useForm} from "react-hook-form";
-
+import React, { useState, useMemo } from 'react';
+import styled from 'styled-components';
+import { useForm } from 'react-hook-form';
+import trashIcon from '../../images/trash.svg';
+import { Task } from '../index';
+import { removeColumn, editColumn } from '../../store/column/reducer';
+import { addTask } from '../../store/todoList/reducer';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 
 export interface ColumnProps {
-    handleShowTaskModal: ({target}: React.MouseEvent<HTMLDivElement>) => void
-    handleChangeColumn: (columnId: string, columnName: string) => void
-    handleDeleteColumn: (columnId: string) => void
-    handleChangeCardText: (cardId: string, text: string) => void
-    handleDeleteCard: (cardId: string) => void
-    handleCreateTask: (columnId: string, taskTitle: string) => void
-    columnTitle: string
-    columnId: string
-    todoList: CardType[]
-    comments: CommentType[]
-};
-
-
-const Column: React.FC<ColumnProps> = ({
-                                           handleChangeColumn,
-                                           handleDeleteColumn,
-                                           handleDeleteCard,
-                                           handleChangeCardText,
-                                           columnTitle,
-                                           columnId,
-                                           todoList,
-                                           handleCreateTask,
-                                           handleShowTaskModal,
-                                           comments
-                                       }) => {
-
-    const {register, handleSubmit, setValue} = useForm({defaultValues: {columnTitle: columnTitle, taskTitle: ''}});
-    const [isEditActive, setEditActive] = useState(false);
-
-    const filteredTodoList = useMemo(
-        () => todoList.filter((todo) =>
-            todo.columnId === columnId),
-        [columnId, todoList]
-    )
-
-    const handleNewTaskButton = (data: { taskTitle: string; }) => {
-        handleCreateTask(columnId, data.taskTitle)
-        setValue("taskTitle",'');
-    }
-
-    const handleEditColumn = (data: { columnTitle: string }) => {
-        if (data.columnTitle !== '') {
-            handleChangeColumn(columnId, data.columnTitle)
-        } else {
-           setValue('columnTitle',columnTitle)
-        }
-        setEditActive(!isEditActive)
-    };
-
-    const handleTitleClick = () => {
-        setEditActive(!isEditActive)
-    }
-
-    const handleDeleteColumnButton = () => {
-        handleDeleteColumn(columnId)
-    }
-
-    return (
-        <Root>
-            <Flex>
-
-                {isEditActive
-
-                    ?
-                    <EditTitle type="text" {...register("columnTitle" ) } onBlur={handleSubmit(handleEditColumn)} autoFocus={true} />
-
-                    : <Title onClick={handleTitleClick}>{columnTitle}</Title>
-                }
-
-                <DeleteColumnButton onClick={handleDeleteColumnButton}/>
-
-            </Flex>
-
-            <Tasks>
-
-                {filteredTodoList.map((card) => {
-
-                        return (
-                            <Task
-                                handleChangeCardText={handleChangeCardText}
-                                handleDeleteCard={handleDeleteCard}
-                                cardId={card.id}
-                                cardText={card.text}
-                                key={card.id}
-                                comments={comments}
-                                handleShowTaskModal={handleShowTaskModal}
-                            />
-                        )
-                    }
-                )}
-            </Tasks>
-
-            <Flex>
-
-                <NewTask type="text"  {...register("taskTitle" ) }/>
-
-                <NewTaskButton onClick={handleSubmit(handleNewTaskButton)}>Add</NewTaskButton>
-
-            </Flex>
-        </Root>
-    )
+  handleShowTaskModal: ({ target }: React.MouseEvent<HTMLDivElement>) => void;
+  columnTitle: string;
+  columnId: string;
 }
 
-export default Column
+const Column: React.FC<ColumnProps> = ({
+  columnTitle,
+  columnId,
+  handleShowTaskModal,
+}) => {
+  const { register, handleSubmit, setValue } = useForm({ defaultValues: { columnTitle, taskTitle: '' } });
+  const todoList = useAppSelector((state) => state.todoList.todoList);
+  const dispatch = useAppDispatch();
+  const [isEditActive, setEditActive] = useState(false);
+
+  const filteredTodoList = useMemo(
+    () => todoList.filter((todo) => todo.columnId === columnId),
+    [columnId, todoList],
+  );
+
+  const handleEditColumn = () => {
+    setEditActive(!isEditActive);
+  };
+
+  const handleNewTaskButton = (data: { taskTitle: string; }) => {
+    if (data.taskTitle) {
+      dispatch(addTask({
+        text: data.taskTitle,
+        columnId,
+      }));
+      setValue('taskTitle', '');
+    }
+  };
+
+  const handleColumn = (data: { columnTitle: string }) => {
+    if (data.columnTitle !== '') {
+      dispatch(editColumn({
+        columnId,
+        columnTitle: data.columnTitle,
+      }));
+    } else {
+      dispatch(editColumn({
+        columnId,
+        columnTitle,
+      }));
+      setValue('columnTitle', columnTitle);
+    }
+    setEditActive(!isEditActive);
+  };
+
+  const handleDeleteColum = () => {
+    dispatch(removeColumn({ columnId }));
+  };
+
+  return (
+    <Root>
+      <Flex>
+        {isEditActive
+          ? <EditTitle type="text" {...register('columnTitle')} onBlur={handleSubmit(handleColumn)} autoFocus />
+          : <Title onClick={handleEditColumn}>{columnTitle}</Title>}
+        <DeleteColumnButton onClick={handleDeleteColum} />
+      </Flex>
+      <Tasks>
+        {filteredTodoList.map((card) => (
+          <Task
+            cardId={card.id}
+            cardText={card.text}
+            key={card.id}
+            handleShowTaskModal={handleShowTaskModal}
+          />
+        ))}
+      </Tasks>
+
+      <Flex>
+
+        <NewTask type="text" {...register('taskTitle')} />
+
+        <NewTaskButton onClick={handleSubmit(handleNewTaskButton)}>Add</NewTaskButton>
+
+      </Flex>
+    </Root>
+  );
+};
+
+export default Column;
 
 const Root = styled.div`
   display: flex;
@@ -149,7 +131,6 @@ const NewTask = styled.input`
   border: none;
   border-radius: 5px;
   width: 80%;
-  border: none;
 
   &:focus {
     outline: solid 2px cornflowerblue;

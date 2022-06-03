@@ -1,43 +1,39 @@
-import React, {useState} from "react";
-import styled from "styled-components";
-import {useForm, SubmitHandler} from "react-hook-form";
+import React from 'react';
+import styled from 'styled-components';
+import { useForm } from 'react-hook-form';
+import { useAppDispatch } from '../../hooks';
+import { addUserName } from '../../store/login/reducer';
 
-export interface LoginProps {
-    onSetUserName: (value: string) => void;
-}
+const Login: React.FC = () => {
+  const { register, handleSubmit, formState: { errors } } = useForm({ defaultValues: { userName: '' } });
 
-const Login: React.FC<LoginProps> = ({onSetUserName}) => {
+  const dispatch = useAppDispatch();
 
-    const {register, handleSubmit, formState: {errors}} = useForm({defaultValues: {userName: ""}});
-
-    const onSubmit = (data: { userName: string; }) => {
-        onSetUserName(data.userName);
+  const onSubmit = (data: { userName: string; }) => {
+    if (data.userName) {
+      dispatch(addUserName(
+        { userName: data.userName },
+      ));
     }
+  };
 
-    return (
+  return (
+    <Root>
+      <Container onSubmit={handleSubmit(onSubmit)}>
+        <Name
+          type="text"
+          {...register('userName', { required: true })}
+          defaultValue=""
+          placeholder="Введите свое имя?"
+        />
+        {errors.userName && <p>Введите имя!</p>}
+        <ConfirmButton type="submit">Confirm</ConfirmButton>
+      </Container>
+    </Root>
+  );
+};
 
-        <Root>
-
-            <Container onSubmit={handleSubmit(onSubmit)}>
-
-                <label>Name</label>
-
-                <Name type="text" {...register("userName", {required: true})} defaultValue=""
-
-                      placeholder={'Введите свое имя?'}/>
-
-                {errors.userName && <p>Введите имя!</p>}
-
-                <ConfirmButton type="submit">Confirm</ConfirmButton>
-
-            </Container>
-
-        </Root>
-
-    )
-}
-
-export default Login
+export default Login;
 
 const Root = styled.div`
   position: fixed;
@@ -66,7 +62,6 @@ const Name = styled.input`
   height: 30px;
   border: none;
   border-radius: 5px;
-  border: none;
 
   &:focus {
     outline: solid 2px cornflowerblue;
