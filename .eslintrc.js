@@ -31,7 +31,7 @@ module.exports = {
     'react/jsx-props-no-spreading': 'off',
   },
   settings: {
-    'react/function-component-definition': '[2, { "namedComponents": "arrow-function" }]',
+    'react/function-component-definition': '[2, { "namedComponents": "function-declaration" }]',
     'import/resolver': {
       node: {
         paths: ['src'],
