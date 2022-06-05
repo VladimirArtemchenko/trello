@@ -8,6 +8,7 @@ import { addTask } from '../../store/todoList/reducer';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 
 export interface ColumnProps {
+  // eslint-disable-next-line no-unused-vars
   handleShowTaskModal: ({ target }: React.MouseEvent<HTMLDivElement>) => void;
   columnTitle: string;
   columnId: string;

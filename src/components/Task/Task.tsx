@@ -7,6 +7,7 @@ import { removeTask, editTask } from '../../store/todoList/reducer';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 
 export interface TaskProps {
+  // eslint-disable-next-line no-unused-vars
   handleShowTaskModal: (value : React.MouseEvent<HTMLDivElement>) => void;
   cardId: string;
   cardText: string;

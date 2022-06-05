@@ -8,6 +8,7 @@ import { addComment } from '../../store/comments/reducer';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 
 export interface TaskPopupProps {
+  // eslint-disable-next-line no-unused-vars
   onSetCurrentCardId: (value: string) => void;
   currentCardId: string;
   currentCardText: string;
